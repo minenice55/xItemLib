@@ -1,0 +1,95 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run",
+            "type": "process",
+            "command": "srb2kart.exe",
+            "options": {
+                "cwd": "C:\\Users\\minenice\\Documents\\srb2kartvanilla"
+            },
+            "args": [
+                "-skipintro",
+                "-server",
+                "-warp",
+                "MAP03",
+                "-file",
+                "${workspaceFolder}\\xItemSrc\\Lua\\xItemLib_v112.lua",
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "run (multislot)",
+            "type": "process",
+            "command": "srb2kart.exe",
+            "options": {
+                "cwd": "C:\\Users\\minenice\\Documents\\srb2kartvanilla"
+            },
+            "args": [
+                "-skipintro",
+                "-server",
+                "-warp",
+                "MAP03",
+                "-file",
+                "${workspaceFolder}\\pck\\Lua\\xItemLib_v112.lua",
+                "${workspaceFolder}\\extensions\\xItem_MultiSlot.lua",
+                "${workspaceFolder}\\KL_xItem_SamplerPack_TEMP.pk3"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "run (sampler)",
+            "type": "process",
+            "command": "srb2kart.exe",
+            "options": {
+                "cwd": "C:\\Users\\minenice\\Documents\\srb2kartvanilla"
+            },
+            "args": [
+                "-skipintro",
+                "-server",
+                "-warp",
+                "MAP03",
+                "-file",
+                "${workspaceFolder}\\pck\\Lua\\xItemLib_v112.lua",
+                "${workspaceFolder}\\KL_xItem_SamplerPack_TEMP.pk3",
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "pack sampler pack",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "build.py",
+                "pck",
+                "KL_xItem_SamplerPack_TEMP.pk3"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "pack+run",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "pack sampler pack",
+                "run (sampler)"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}
