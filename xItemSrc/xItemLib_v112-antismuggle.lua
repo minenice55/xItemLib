@@ -106,6 +106,31 @@ local function K_FlipFromObject(mo, master)
 	end
 end
 
+local function smuggleDetection()
+	local group = {}
+	for p in players.iterate
+		if not p.spectator then
+			table.insert(group, p)
+		end
+	end
+	
+	for i=1, #group
+		if group[i].kartstuff[k_position] <= 2
+		and (group[i].kartstuff[k_itemtype] == 1
+		or group[i].kartstuff[k_itemtype] == 2
+		or group[i].kartstuff[k_itemtype] == 3
+		or group[i].kartstuff[k_itemtype] == 11
+		or group[i].kartstuff[k_invincibilitytimer] > 0
+		or group[i].kartstuff[k_growshrinktimer] > 0
+		or (HugeQuest and group[i].hugequest.huge > 0))
+			--print("SMUGGLER DETECTED")
+			return true
+		end
+	end
+
+	return false
+end
+
 local function findSplitPlayerNum(p)
 	if not p then return end
 	local splitplaynum = 0
@@ -1196,6 +1221,11 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 		
 		if (spbrush) then -- SPB Rush Mode: It's 2nd place's job to catch-up items and make 1st place's job hell
 			pdis = (3 * $) >> 1
+		end
+
+		if smuggleDetection()
+		and pks[k_position] > 1 then -- Haha, FUCK YOU
+			pdis = (6*$)/5
 		end
 		
 		pdis = ((28 + (8-pingame)) * $) / 28
