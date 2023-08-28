@@ -20,6 +20,35 @@ local XIF_COOLDOWNINDIRECT = 16 --checks if indirectitemcooldown is 0
 local XIF_COLPATCH2PLAYER = 32 --map hud patch colour to player prefcolor
 local XIF_ICONFORAMT = 64 --item icon and dropped item frame changes depending on the item amount (animation frames become amount frames)
 
+-- Ashnal: for debug logging
+local lastpdis
+
+-- Ashnal: I've moved vanilla item odds and flags up here for easy reference, this table is referenced much later when initializing vanilla items
+local vanillaItemProps = {}
+-- xItem useodds                                           1  2  3  4  5  6  7  8  9  10
+vanillaItemProps["KITEM_SNEAKER"]         = {raceodds =  {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = nil                                                    }
+vanillaItemProps["KITEM_ROCKETSNEAKER"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KITEM_INVINCIBILITY"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
+vanillaItemProps["KITEM_BANANA"]          = {raceodds =  { 0, 9, 4, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = nil                                                    }
+vanillaItemProps["KITEM_EGGMAN"]          = {raceodds =  { 0, 3, 2, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = nil                                                    }
+vanillaItemProps["KITEM_ORBINAUT"]        = {raceodds =  { 0, 7, 6, 4, 2, 0, 0, 0, 0, 0 }, battleodds = { 8, 0 }, flags = XIF_ICONFORAMT                                         }
+vanillaItemProps["KITEM_JAWZ"]            = {raceodds =  { 0, 0, 3, 2, 1, 1, 0, 0, 0, 0 }, battleodds = { 8, 1 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KITEM_MINE"]            = {raceodds =  { 0, 0, 2, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 4, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
+vanillaItemProps["KITEM_BALLHOG"]         = {raceodds =  { 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KITEM_SPB"]             = {raceodds =  { 0, 0, 1, 2, 3, 4, 2, 2, 0,20 }, battleodds = { 0, 0 }, flags = XIF_COOLDOWNINDIRECT                                   }
+vanillaItemProps["KITEM_GROW"]            = {raceodds =  { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
+vanillaItemProps["KITEM_SHRINK"]          = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_COOLDOWNINDIRECT }
+vanillaItemProps["KITEM_THUNDERSHIELD"]   = {raceodds =  { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_UNIQUE           }
+vanillaItemProps["KITEM_HYUDORO"]         = {raceodds =  { 0, 0, 0, 0, 1, 2, 1, 0, 0, 0 }, battleodds = { 2, 0 }, flags = XIF_COOLDOWNONSTART|XIF_UNIQUE                         }
+vanillaItemProps["KITEM_POGOSPRING"]      = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, flags = nil                                                    }
+vanillaItemProps["KITEM_KITCHENSINK"]     = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, flags = nil                                                    }
+vanillaItemProps["KRITEM_TRIPLESNEAKER"]  = {raceodds =  { 0, 0, 0, 0, 3, 7, 9, 2, 0, 0 }, battleodds = { 0, 1 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_TRIPLEBANANA"]   = {raceodds =  { 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_TENFOLDBANANA"]  = {raceodds =  { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 }, battleodds = { 0, 1 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_TRIPLEORBINAUT"] = {raceodds =  { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_QUADORBINAUT"]   = {raceodds =  { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, battleodds = { 1, 1 }, flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_DUALJAWZ"]       = {raceodds =  { 0, 0, 0, 1, 2, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM                                          }
+
 local XBT_ATTACKDISABLED = 1<<7
 
 --apparently this makes shit faster? wtf?
@@ -104,6 +133,31 @@ local function K_FlipFromObject(mo, master)
 	if (mo.eflags & MFE_VERTICALFLIP) then
 		mo.z = $ + (master.height - FixedMul(master.scale, mo.height))
 	end
+end
+
+local function smuggleDetection()
+	local group = {}
+	for p in players.iterate
+		if not p.spectator then
+			table.insert(group, p)
+		end
+	end
+	
+	for i=1, #group
+		if group[i].kartstuff[k_position] <= 2
+		and (group[i].kartstuff[k_itemtype] == 1
+		or group[i].kartstuff[k_itemtype] == 2
+		or group[i].kartstuff[k_itemtype] == 3
+		or group[i].kartstuff[k_itemtype] == 11
+		or group[i].kartstuff[k_invincibilitytimer] > 0
+		or group[i].kartstuff[k_growshrinktimer] > 0
+		or (HugeQuest and group[i].hugequest.huge > 0))
+			--print("SMUGGLER DETECTED")
+			return true
+		end
+	end
+
+	return false
 end
 
 local function findSplitPlayerNum(p)
@@ -1126,6 +1180,7 @@ local function setupDistTable(odds, num, disttable, distlen)
 	return a
 end
 
+local aggressiondistance = 600
 local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	if not p then return end
 
@@ -1159,9 +1214,45 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	end
 	
 	--calc distances (honestly kinda weiiiirdddd)
-	for p2 in players.iterate do
-		if p.mo and p2 and (not p2.spectator) and p2.mo and (p2.kartstuff[k_position] ~= 0) and p2.kartstuff[k_position] < pks[k_position] then
-			pdis = $ + R_PointToDist2(0, p.mo.x, R_PointToDist2(p.mo.y, p.mo.z, p2.mo.y, p2.mo.z), p2.mo.x) / mapobjectscale * (pingame - p2.kartstuff[k_position]) / max(1, ((pingame - 1) * (pingame + 1) / 3))
+	if xItemLib.cvars.bItemDistCalcConga.value then -- conga line calc, inspired by Sal's rr-item-cruncher branch
+		if (p.mo and p.mo.valid) then
+			local playerMoList = {}
+			for q in players.iterate do
+				if not (q.mo and q.mo.valid) then continue end
+				playerMoList[q.kartstuff[k_position]] = q.mo
+			end
+			local toposition = p.kartstuff[k_position] - 1
+			while toposition > 0 do
+				local from = playerMoList[toposition + 1]
+				local to = nil
+				while not to and toposition > 0 do -- Ensures that if somehow the list has any gaps we skip over them, and prevent infinite looping
+					to = playerMoList[toposition]
+					toposition = $-1
+				end
+				if to and from then -- if somehow 1st isn't in the list, to would end up nil, so we need to catch that
+					--local dist = (FixedHypot(FixedHypot(from.x - to.x, from.y - to.y), from.z - to.z))
+					--print("from "..skins[from.skin].name.." to "..skins[to.skin].name.." is "..dist)
+					pdis = $ + FixedHypot(FixedHypot(from.x/4 - to.x/4, from.y/4 - to.y/4), from.z/4 - to.z/4) -- trying to not overflow FixedHypot with large distances
+					if toposition+1 == p.kartstuff[k_position] then -- When we check only the player immmediately ahead
+						local ahead  = FixedHypot(FixedHypot(from.x/4 - to.x/4, from.y/4 - to.y/4), from.z/4 - to.z/4)*4
+						to = playerMoList[toposition+2]
+						if to then
+							local behind = FixedHypot(FixedHypot(from.x/4 - to.x/4, from.y/4 - to.y/4), from.z/4 - to.z/4)*4
+							local closerange = aggressiondistance*mapobjectscale
+							from.xitemcloserange = not (ahead > closerange and behind > closerange)
+						end
+					end
+				end
+			end	
+			pdis = ($ / mapobjectscale)*2 -- Scale it. This results in pdis values a bit weaker in smaller games, and a bit stronger in larger games than the original formula
+			pdis = ((130 + 8 - min(pingame, 16)) * $) / 130 -- Again, but this time base it on playercount, same form as the following vanilla adjustment, but much weaker since it stacks with it
+		end
+	else -- original vanilla calc
+		for p2 in players.iterate do
+			if p.mo and p2 and (not p2.spectator) and p2.mo and (p2.kartstuff[k_position] ~= 0) and p2.kartstuff[k_position] < pks[k_position] then
+				
+				pdis = $ + FixedHypot(FixedHypot(p.mo.x/4 - p2.mo.x/4, p.mo.y/4 - p2.mo.y/4), p.mo.z/4 - p2.mo.z/4)*4 / mapobjectscale * (pingame - p2.kartstuff[k_position]) / max(1, ((pingame - 1) * (pingame + 1) / 3))
+			end
 		end
 	end
 	
@@ -1198,7 +1289,12 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 			pdis = (3 * $) >> 1
 		end
 		
-		pdis = ((28 + (8-pingame)) * $) / 28
+		if smuggleDetection()
+		and pks[k_position] > 1 then -- Haha, FUCK YOU
+			pdis = (6*$)/5
+		end
+
+		pdis = ((28 + 8 - min(pingame, 16)) * $) / 28
 		
 		if pingame == 1 and oddsvalid[1] then					-- Record Attack, or just alone
 			useodds = 1
@@ -1225,6 +1321,8 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	end
 	--print("Got useodds "..useodds.." (kart useodds "..(useodds - 1).."). (position: "..p.kartstuff[k_position]..", distance: "..pdis..", stopcode: "..debug_useoddsstopcode..")") 
 	--debug_useoddsstopcode = nil
+	
+	lastpdis = pdis
 	
 	distvar = nil
 	i = nil
@@ -1449,7 +1547,12 @@ local function xItem_ItemRoulette(p, cmd)
 		local spawnidx = P_RandomKey(totalspawnchance)
 		for i = 1, libfn.countItems() do
 			if spawnchance[i] > spawnidx then 
-				--print("GOT ITEM "..i)
+				if xItemLib.cvars.bServerLogRolls.value and consoleplayer == server then
+					local itdat = libfn.getItemDataById(i)
+					local racetime = max(leveltime - starttime, 0)
+					-- we useodds-1 here to use the vanilla 0 based odds numbering
+					print("Player "..#p.." "..p.name.." got "..itdat.name.." with position "..p.kartstuff[k_position].." of "..pingame.." and useodds "..(useodds-1).." and pdis "..lastpdis.." and spbrush "..tostring(spbrush).." at leveltime "..leveltime.." aka "..G_TicsToMinutes(racetime)..":"..G_TicsToSeconds(racetime)..":"..G_TicsToCentiseconds(racetime)) 
+				end
 				libfn.getItemResult(p, i, false)
 				break 
 			end
@@ -1457,6 +1560,12 @@ local function xItem_ItemRoulette(p, cmd)
 		spawnidx = nil
 	else
 		// failsafe if no item could be obtained
+		if xItemLib.cvars.bServerLogRolls.value and consoleplayer == server then
+			local itdat = libfn.getItemDataById(1)
+			local racetime = max(leveltime - starttime, 0)
+			-- we useodds-1 here to use the vanilla 0 based odds numbering
+			print("FAILSAFE: Player "..#p.." "..p.name.." got failsafe "..itdat.name.." with position "..p.kartstuff[k_position].." of "..pingame.." and useodds "..(useodds-1).." and pdis "..lastpdis.." and spbrush "..tostring(spbrush).." at leveltime "..leveltime.." aka "..G_TicsToMinutes(racetime)..":"..G_TicsToSeconds(racetime)..":"..G_TicsToCentiseconds(racetime)) 
+		end
 		libfn.getItemResult(p, 1, false)
 	end
 	
@@ -1490,7 +1599,7 @@ local function xItem_handleDistributionDebugger(pa)
 
 	local libdat = xItemLib
 	local libfn = libdat.func
-	if libdat.cvars.bItemDebugDistrib.value and P_IsLocalPlayer(pa) and (pa == consoleplayer) then
+	if (libdat.cvars.bItemDebugDistrib.value or libdat.cvars.bItemDebugDistribReplayOnly.value and replayplayback) and displayplayers[0] == pa then
 		local pingame = 0
 		local dontforcespb = false
 		local spbrush = false
@@ -1946,6 +2055,9 @@ local function findItemDistributions(p, useodds, spbrush)
 		odds = {},
 		useodds = {}
 	}
+	
+	distributions.pdis = lastpdis
+	
 	local libdat = xItemLib
 	local libfn = xItemLib.func
 	local cv = libdat.cvars
@@ -1982,8 +2094,8 @@ local function findItemDistributions(p, useodds, spbrush)
 end
 
 local function xItem_drawDistributions(v, p, c)
-	if not xItemLib.cvars.bItemDebugDistrib.value then return end
-	if p ~= consoleplayer then return end
+	if not (xItemLib.cvars.bItemDebugDistrib.value or xItemLib.cvars.bItemDebugDistribReplayOnly.value and replayplayback)	then return	end
+	if p ~= displayplayers[0] then return end
 	local libdat = xItemLib
 	local libfn = xItemLib.func
 
@@ -2001,7 +2113,8 @@ local function xItem_drawDistributions(v, p, c)
 		v.drawString(fx + 28 * ((i-1) % 10) + 38, fy + 30 * ((i-1) / 10) + 26, (perc/100) + "." + (perc%100) + "%", V_SNAPTOTOP|V_SNAPTOLEFT|V_50TRANS, "small-right")
 	end
 
-	v.drawString(fx, fy + 12, "useodds : " + debuggerDistributions.useodds, V_SNAPTOTOP|V_SNAPTOLEFT|V_50TRANS, "small")
+	-- God fixing this to use vanilla useodds number display to reduce confusion
+	v.drawString(fx, fy + 12, "useodds : " + (debuggerDistributions.useodds-1) + "  pdis : " + debuggerDistributions.pdis, V_SNAPTOTOP|V_SNAPTOLEFT|V_50TRANS, "small")
 end
 
 local function findAvailableRoulettePatches(p, useodds, spbrush)
@@ -2465,6 +2578,28 @@ if not xItemLib then
 		flags = CV_NETVAR,
 		possiblevalue = CV_YesNo
 	})
+	-- Ashnal: Couple new cvars
+	-- This is a non-netvar that allows you to view the distribution debugger within replays, without allowing it in netgames that the replays come from
+	xItemLib.cvars.bItemDebugDistribReplayOnly = CV_RegisterVar({ --distribution debugger
+		name = "xitemdebugdistributionsreplay",
+		defaultvalue = "No",
+		flags = nil,
+		possiblevalue = CV_YesNo
+	})
+	-- This one logs all item rolls in the server players log, nice for dedicated servers, but requires hostmod to properly set consoleplayer
+	xItemLib.cvars.bServerLogRolls = CV_RegisterVar({ --distribution debugger
+		name = "xitemserverlogrolls",
+		defaultvalue = "No",
+		flags = nil,
+		possiblevalue = CV_YesNo
+	})
+	
+	xItemLib.cvars.bItemDistCalcConga = CV_RegisterVar({ -- conga line option
+		name = "xitemdistcalcconga",
+		defaultvalue = "No",
+		flags = CV_NETVAR,
+		possiblevalue = CV_YesNo
+	})
 	
 	local function spbOdds(newodds, pos, mashed, rush, p, secondist, pingame, pexiting)
 		local nod = newodds
@@ -2561,31 +2696,29 @@ if not xItemLib then
 	addHook("MobjThinker", xItemLib.func.playerArrowThinker, MT_XITEMPLAYERARROW)
 	
 	addHook("MobjThinker", xItemLib.func.vanillaArrowThinker, MT_PLAYERARROW)
-	
-	xItemLib.func.addItem{"KITEM_SNEAKER", "Sneaker", "K_ITSHOE", "K_ISSHOE", 0, {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, { 2, 1 }, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 1}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_ROCKETSNEAKER", "Rocket Sneaker", "K_ITRSHE", "K_ISRSHE", 0, { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, { 0, 0 }, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 2}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_INVINCIBILITY", "Invincibility", {3, "K_ITINV1", "K_ITINV2", "K_ITINV3", "K_ITINV4", "K_ITINV5", "K_ITINV6", "K_ITINV7"}, {3, "K_ISINV1", "K_ISINV2", "K_ISINV3", "K_ISINV4", "K_ISINV5", "K_ISINV6"}, XIF_COOLDOWNONSTART, { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, { 2, 1 }, nil, nil, nil, nil, nil, {3, {SPR_ITMI, A}, {SPR_ITMI, B}, {SPR_ITMI, C}, {SPR_ITMI, D}, {SPR_ITMI, E}, {SPR_ITMI, F}, {SPR_ITMI, G}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_BANANA", "Banana", "K_ITBANA", "K_ISBANA", 0, { 0, 9, 4, 2, 1, 0, 0, 0, 0, 0 }, { 1, 0 }, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 4}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_EGGMAN", "Eggman Monitor", "K_ITEGGM", "K_ISEGGM", 0, { 0, 3, 2, 1, 0, 0, 0, 0, 0, 0 }, { 1, 0 }, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 5}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_ORBINAUT", "Orbinaut", {35, "K_ITORB1", "K_ITORB2", "K_ITORB3", "K_ITORB4"}, "K_ISORBN", XIF_ICONFORAMT, { 0, 7, 6, 4, 2, 0, 0, 0, 0, 0 }, { 8, 0 }, nil, nil, nil, nil, nil, {4, {SPR_ITMO, A}, {SPR_ITMO, B}, {SPR_ITMO, C}, {SPR_ITMO, D}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_JAWZ", "Jawz", "K_ITJAWZ", "K_ISJAWZ", 0, { 0, 0, 3, 2, 1, 1, 0, 0, 0, 0 }, { 8, 1 }, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 7}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_MINE", "Mine", "K_ITMINE", "K_ISMINE", XIF_COOLDOWNONSTART, { 0, 0, 2, 2, 1, 0, 0, 0, 0, 0 }, { 4, 1 }, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 8}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_BALLHOG", "Ballhog", "K_ITBHOG", "K_ISBHOG", 0, { 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 }, { 2, 1 }, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 9}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_SPB", "Self-Propelled Bomb", "K_ITSPB", "K_ISSPB", XIF_COOLDOWNINDIRECT, { 0, 0, 1, 2, 3, 4, 2, 2, 0, 20 }, { 0, 0 }, getSpb, nil, nil, spbOdds, nil,  {0, {SPR_ITEM, 10}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_GROW", "Grow", "K_ITGROW", "K_ISGROW", XIF_POWERITEM|XIF_COOLDOWNONSTART, { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, { 2, 1 }, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 11}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_SHRINK", "Shrink", "K_ITSHRK", "K_ISSHRK", XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_COOLDOWNINDIRECT, { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 }, { 0, 0 }, getSpb, nil, nil, shrinkOdds, nil,  {0, {SPR_ITEM, 12}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_THUNDERSHIELD", "Thunder Shield", "K_ITTHNS", "K_ISTHNS", XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_UNIQUE, { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0 }, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 13}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_HYUDORO", "Hyudoro", "K_ITHYUD", "K_ISHYUD", XIF_COOLDOWNONSTART|XIF_UNIQUE, { 0, 0, 0, 0, 1, 2, 1, 0, 0, 0 }, { 2, 0 }, getHyuu, nil, nil, hyuuOdds, nil,  {0, {SPR_ITEM, 14}}, true, nil, nil}
-	xItemLib.func.addItem{"KITEM_POGOSPRING", "Pogo Spring", "K_ITPOGO", "K_ISPOGO", 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 2, 0 }, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 15}}, showPogo, nil, nil} --what if I throw in a sneaky pogo lmao
-	xItemLib.func.addItem{"KITEM_KITCHENSINK", "Kitchen Sink", "K_ITSINK", "K_ISSINK", 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0 }, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 16}}, false, nil, nil}
-	
-	xItemLib.func.addItem{"KRITEM_TRIPLESNEAKER", "Triple Sneaker", "K_ITSHOE", "K_ISSHOE", 0, { 0, 0, 0, 0, 3, 7, 9, 2, 0, 0 }, { 0, 1 }, nil, nil, nil, nil, getTripleShoe,  {0, {SPR_ITEM, 1}}, false, nil, nil}
-	xItemLib.func.addItem{"KRITEM_TRIPLEBANANA", "Triple Banana", "K_ITBANA", "K_ISBANA", 0, { 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, { 1, 0 }, nil, nil, nil, nil, getTripleBanana, {0, {SPR_ITEM, 4}}, false, nil, nil}
-	xItemLib.func.addItem{"KRITEM_TENFOLDBANANA", "Deca Banana", "K_ITBANA", "K_ISBANA", 0, { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 }, { 0, 1 }, nil, nil, nil, nil, getDecaBanana, {0, {SPR_ITEM, 5}}, false, nil, nil}
-	xItemLib.func.addItem{"KRITEM_TRIPLEORBINAUT", "Triple Orbinaut", "K_ITORB3", "K_ISORBN", 0, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, { 2, 0 }, nil, nil, nil, nil, getTripleOrbi, {0, {SPR_ITMO, C}}, false, nil, nil}
-	xItemLib.func.addItem{"KRITEM_QUADORBINAUT", "Quad Orbinaut", "K_ITORB4", "K_ISORBN", 0, { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, { 1, 1 }, nil, nil, nil, nil, getQuadOrbi, {0, {SPR_ITMO, D}}, false, nil, nil}
-	xItemLib.func.addItem{"KRITEM_DUALJAWZ", "Dual Jawz", "K_ITJAWZ", "K_ISJAWZ", XIF_POWERITEM, { 0, 0, 0, 1, 2, 0, 0, 0, 0, 0 }, { 2, 1 }, nil, nil, nil, nil, getDualJawz, {0, {SPR_ITEM, 7}}, false, nil, nil}
-	
+
+	xItemLib.func.addItem{"KITEM_SNEAKER", "Sneaker", "K_ITSHOE", "K_ISSHOE", vanillaItemProps["KITEM_SNEAKER"].flags, vanillaItemProps["KITEM_SNEAKER"].raceodds, vanillaItemProps["KITEM_SNEAKER"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 1}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_ROCKETSNEAKER", "Rocket Sneaker", "K_ITRSHE", "K_ISRSHE", vanillaItemProps["KITEM_ROCKETSNEAKER"].flags, vanillaItemProps["KITEM_ROCKETSNEAKER"].raceodds, vanillaItemProps["KITEM_ROCKETSNEAKER"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 2}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_INVINCIBILITY", "Invincibility", {3, "K_ITINV1", "K_ITINV2", "K_ITINV3", "K_ITINV4", "K_ITINV5", "K_ITINV6", "K_ITINV7"}, {3, "K_ISINV1", "K_ISINV2", "K_ISINV3", "K_ISINV4", "K_ISINV5", "K_ISINV6"}, vanillaItemProps["KITEM_INVINCIBILITY"].flags,vanillaItemProps["KITEM_INVINCIBILITY"].raceodds, vanillaItemProps["KITEM_INVINCIBILITY"].battleodds, nil, nil, nil, nil, nil, {3, {SPR_ITMI, A}, {SPR_ITMI, B}, {SPR_ITMI, C}, {SPR_ITMI, D}, {SPR_ITMI, E}, {SPR_ITMI, F}, {SPR_ITMI, G}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_BANANA", "Banana", "K_ITBANA", "K_ISBANA", vanillaItemProps["KITEM_BANANA"].flags, vanillaItemProps["KITEM_BANANA"].raceodds, vanillaItemProps["KITEM_BANANA"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 4}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_EGGMAN", "Eggman Monitor", "K_ITEGGM", "K_ISEGGM", vanillaItemProps["KITEM_EGGMAN"].flags, vanillaItemProps["KITEM_EGGMAN"].raceodds, vanillaItemProps["KITEM_EGGMAN"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 5}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_ORBINAUT", "Orbinaut", {35, "K_ITORB1", "K_ITORB2", "K_ITORB3", "K_ITORB4"}, "K_ISORBN", vanillaItemProps["KITEM_ORBINAUT"].flags, vanillaItemProps["KITEM_ORBINAUT"].raceodds, vanillaItemProps["KITEM_ORBINAUT"].battleodds, nil, nil, nil, nil, nil, {4, {SPR_ITMO, A}, {SPR_ITMO, B}, {SPR_ITMO, C}, {SPR_ITMO, D}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_JAWZ", "Jawz", "K_ITJAWZ", "K_ISJAWZ", vanillaItemProps["KITEM_JAWZ"].flags, vanillaItemProps["KITEM_JAWZ"].raceodds, vanillaItemProps["KITEM_JAWZ"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 7}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_MINE", "Mine", "K_ITMINE", "K_ISMINE", vanillaItemProps["KITEM_MINE"].flags, vanillaItemProps["KITEM_MINE"].raceodds, vanillaItemProps["KITEM_MINE"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 8}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_BALLHOG", "Ballhog", "K_ITBHOG", "K_ISBHOG", vanillaItemProps["KITEM_BALLHOG"].flags, vanillaItemProps["KITEM_BALLHOG"].raceodds, vanillaItemProps["KITEM_BALLHOG"].battleodds, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 9}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_SPB", "Self-Propelled Bomb", "K_ITSPB", "K_ISSPB", vanillaItemProps["KITEM_SPB"].flags, vanillaItemProps["KITEM_SPB"].raceodds, vanillaItemProps["KITEM_SPB"].battleodds, getSpb, nil, nil, spbOdds, nil,  {0, {SPR_ITEM, 10}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_GROW", "Grow", "K_ITGROW", "K_ISGROW", vanillaItemProps["KITEM_GROW"].flags, vanillaItemProps["KITEM_GROW"].raceodds, vanillaItemProps["KITEM_GROW"].battleodds, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 11}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_SHRINK", "Shrink", "K_ITSHRK", "K_ISSHRK", vanillaItemProps["KITEM_SHRINK"].flags, vanillaItemProps["KITEM_SHRINK"].raceodds, vanillaItemProps["KITEM_SHRINK"].battleodds, getSpb, nil, nil, shrinkOdds, nil,  {0, {SPR_ITEM, 12}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_THUNDERSHIELD", "Thunder Shield", "K_ITTHNS", "K_ISTHNS", vanillaItemProps["KITEM_THUNDERSHIELD"].flags, vanillaItemProps["KITEM_THUNDERSHIELD"].raceodds, vanillaItemProps["KITEM_THUNDERSHIELD"].battleodds, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 13}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_HYUDORO", "Hyudoro", "K_ITHYUD", "K_ISHYUD", vanillaItemProps["KITEM_HYUDORO"].flags, vanillaItemProps["KITEM_HYUDORO"].raceodds, vanillaItemProps["KITEM_HYUDORO"].battleodds, getHyuu, nil, nil, hyuuOdds, nil,  {0, {SPR_ITEM, 14}}, true, nil, nil}
+	xItemLib.func.addItem{"KITEM_POGOSPRING", "Pogo Spring", "K_ITPOGO", "K_ISPOGO", vanillaItemProps["KITEM_POGOSPRING"].flags, vanillaItemProps["KITEM_POGOSPRING"].raceodds, vanillaItemProps["KITEM_POGOSPRING"].battleodds, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 15}}, showPogo, nil, nil} --what if I throw in a sneaky pogo lmao
+	xItemLib.func.addItem{"KITEM_KITCHENSINK", "Kitchen Sink", "K_ITSINK", "K_ISSINK", vanillaItemProps["KITEM_KITCHENSINK"].flags, vanillaItemProps["KITEM_KITCHENSINK"].raceodds, vanillaItemProps["KITEM_KITCHENSINK"].battleodds, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 16}}, false, nil, nil}
+	xItemLib.func.addItem{"KRITEM_TRIPLESNEAKER", "Triple Sneaker", "K_ITSHOE", "K_ISSHOE", vanillaItemProps["KRITEM_TRIPLESNEAKER"].flags, vanillaItemProps["KRITEM_TRIPLESNEAKER"].raceodds, vanillaItemProps["KRITEM_TRIPLESNEAKER"].battleodds, nil, nil, nil, nil, getTripleShoe,  {0, {SPR_ITEM, 1}}, false, nil, nil}
+	xItemLib.func.addItem{"KRITEM_TRIPLEBANANA", "Triple Banana", "K_ITBANA", "K_ISBANA", vanillaItemProps["KRITEM_TRIPLEBANANA"].flags, vanillaItemProps["KRITEM_TRIPLEBANANA"].raceodds, vanillaItemProps["KRITEM_TRIPLEBANANA"].battleodds, nil, nil, nil, nil, getTripleBanana, {0, {SPR_ITEM, 4}}, false, nil, nil}
+	xItemLib.func.addItem{"KRITEM_TENFOLDBANANA", "Deca Banana", "K_ITBANA", "K_ISBANA", vanillaItemProps["KRITEM_TENFOLDBANANA"].flags, vanillaItemProps["KRITEM_TENFOLDBANANA"].raceodds, vanillaItemProps["KRITEM_TENFOLDBANANA"].battleodds, nil, nil, nil, nil, getDecaBanana, {0, {SPR_ITEM, 5}}, false, nil, nil}
+	xItemLib.func.addItem{"KRITEM_TRIPLEORBINAUT", "Triple Orbinaut", "K_ITORB3", "K_ISORBN", vanillaItemProps["KRITEM_TRIPLEORBINAUT"].flags, vanillaItemProps["KRITEM_TRIPLEORBINAUT"].raceodds, vanillaItemProps["KRITEM_TRIPLEORBINAUT"].battleodds, nil, nil, nil, nil, getTripleOrbi, {0, {SPR_ITMO, C}}, false, nil, nil}
+	xItemLib.func.addItem{"KRITEM_QUADORBINAUT", "Quad Orbinaut", "K_ITORB4", "K_ISORBN", vanillaItemProps["KRITEM_QUADORBINAUT"].flags, vanillaItemProps["KRITEM_QUADORBINAUT"].raceodds, vanillaItemProps["KRITEM_QUADORBINAUT"].battleodds, nil, nil, nil, nil, getQuadOrbi, {0, {SPR_ITMO, D}}, false, nil, nil}
+	xItemLib.func.addItem{"KRITEM_DUALJAWZ", "Dual Jawz", "K_ITJAWZ", "K_ISJAWZ", vanillaItemProps["KRITEM_DUALJAWZ"].flags, vanillaItemProps["KRITEM_DUALJAWZ"].raceodds, vanillaItemProps["KRITEM_DUALJAWZ"].battleodds, nil, nil, nil, nil, getDualJawz, {0, {SPR_ITEM, 7}}, false, nil, nil}
 	xItemLib.func.addXItemMod("XITEM_CORE", "xItemLib", {lib = "by minenice"})
 	
 	addHook("NetVars", function(net)
@@ -2662,6 +2795,31 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		xItemLib.cvars.bXRig = CV_RegisterVar({ --rig 2
 			name = "xitemdebugrig",
 			defaultvalue = "Yes",
+			flags = CV_NETVAR,
+			possiblevalue = CV_YesNo
+		})
+	end
+	
+	if (xItemLib.gLibVersion < 112 && xItemLib.gRevVersion < 3) then -- todo: update to 113
+		-- Ashnal: Couple new cvars
+		-- This is a non-netvar that allows you to view the distribution debugger within replays, without allowing it in netgames that the replays come from
+		xItemLib.cvars.bItemDebugDistribReplayOnly = CV_RegisterVar({ --distribution debugger
+			name = "xitemdebugdistributionsreplay",
+			defaultvalue = "No",
+			flags = nil,
+			possiblevalue = CV_YesNo
+		})
+		-- This one logs all item rolls in the server players log, nice for dedicated servers, but requires hostmod to properly set consoleplayer
+		xItemLib.cvars.bServerLogRolls = CV_RegisterVar({ --distribution debugger
+			name = "xitemserverlogrolls",
+			defaultvalue = "No",
+			flags = nil,
+			possiblevalue = CV_YesNo
+		})
+		
+		xItemLib.cvars.bItemDistCalcConga = CV_RegisterVar({ -- conga line option
+			name = "xitemdistcalcconga",
+			defaultvalue = "No",
 			flags = CV_NETVAR,
 			possiblevalue = CV_YesNo
 		})
