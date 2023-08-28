@@ -7,9 +7,9 @@
 --however this does work as it's own standalone mod, if you just want the enhancements
 
 --current library version (release, major, minor)
-local currLibVer = 113
+local currLibVer = 112
 --current library revision (internal testing use)
-local currRevVer = 1
+local currRevVer = 3
 
 --item flags, people making custom items can copy/paste this over to their lua scripts
 local XIF_POWERITEM = 1 --is power item (affects final odds)
@@ -2800,7 +2800,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		})
 	end
 	
-	if (xItemLib.gLibVersion < 113) then -- Monkey see, monkey follow?
+	if (xItemLib.gLibVersion < 112 && xItemLib.gRevVersion < 3) then -- todo: update to 113
 		-- Ashnal: Couple new cvars
 		-- This is a non-netvar that allows you to view the distribution debugger within replays, without allowing it in netgames that the replays come from
 		xItemLib.cvars.bItemDebugDistribReplayOnly = CV_RegisterVar({ --distribution debugger
