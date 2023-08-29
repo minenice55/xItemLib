@@ -135,6 +135,16 @@ local function K_FlipFromObject(mo, master)
 	end
 end
 
+local function K_GetItemPatch(id, small)
+	local libdat = xItemLib
+	local libfn = libdat.func
+	if id <= 0 or libdat.xItemData[id] == nil then
+		return nil
+	end
+	local ret, idx = libdat.xItemData[id].getItemPatchSingle(small, 0)
+	return ret
+end
+
 local function smuggleDetection()
 	local group = {}
 	for p in players.iterate
@@ -1429,7 +1439,7 @@ local function xItem_ItemRoulette(p, cmd)
 		availableItems[splitplaynum] = libfn.hudFindRouletteItems(p, useodds, 0, spbrush)
 	end
 	
-	if ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and libdat.toggles.debugItem and libdat.cvars.bXRig.value then
+	if (not p.spectator) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and libdat.toggles.debugItem and libdat.cvars.bXRig.value then
 		dat.xItem_roulette = TICRATE*3
 	end
 	if (((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and not (kartstuff[k_eggmanheld] or kartstuff[k_itemheld]) and dat.xItem_roulette >= roulettestop and not modeattacking) then
@@ -2488,6 +2498,7 @@ if not xItemLib then
 	})
 
 	rawset(_G, "K_FlipFromObject", K_FlipFromObject)
+	rawset(_G, "K_GetItemPatch", K_GetItemPatch)
 	
 	xItemLib.func.countItems = getLoadedItemAmount
 	xItemLib.func.addItem = addXItem
@@ -2823,6 +2834,8 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 			flags = CV_NETVAR,
 			possiblevalue = CV_YesNo
 		})
+
+		rawset(_G, "K_GetItemPatch", K_GetItemPatch)
 	end
 
 	xItemLib.gLibVersion = currLibVer
