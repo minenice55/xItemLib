@@ -1559,7 +1559,7 @@ local function xItem_ItemRoulette(p, cmd)
 		end
 		spawnidx = nil
 	else
-		// failsafe if no item could be obtained
+		-- failsafe if no item could be obtained
 		if xItemLib.cvars.bServerLogRolls.value and consoleplayer == server then
 			local itdat = libfn.getItemDataById(1)
 			local racetime = max(leveltime - starttime, 0)
@@ -2081,7 +2081,7 @@ local function findItemDistributions(p, useodds, spbrush)
 		end
 	end
 
-	// failsafe odds
+	-- failsafe odds
 	if distributions.totalodds == 0 then
 		distributions.totalodds = 1
 		distributions.it = {1}
@@ -2329,7 +2329,7 @@ local function toggleItem(p, cv)
 		if t > 0 then
 			xItemLib.toggles.xItemToggles[t] = (not $)
 			xItemLib.toggles.allToggle = true
-			print("\x82"..xItemLib.xItemData[y].name.."\x80 is now "..(xItemLib.toggles.xItemToggles[t] and "enabled" or "disabled"))
+			print("\x82"..xItemLib.xItemData[t].name.."\x80 is now "..(xItemLib.toggles.xItemToggles[t] and "enabled" or "disabled"))
 			return
 		end
 	end
