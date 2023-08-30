@@ -1806,19 +1806,22 @@ local colormode = TC_RAINBOW
 local localcolor = SKINCOLOR_NONE
 
 local function xItem_FindHudFlags(v, p, c)
-	if splitscreen < 2 then -- don't change shit for THIS splitscreen.
-		if c.pnum == 1 then
-			return ITEM_X, ITEM_Y, V_SNAPTOTOP|V_SNAPTOLEFT, false
-		else
-			return ITEM_X, ITEM_Y, V_SNAPTOLEFT|V_SPLITSCREEN, false
-		end
-	else -- now we're having a fun game.
-		if c.pnum == 1 or c.pnum == 3 then -- If we are P1 or P3...
-			return ITEM1_X, ITEM1_Y, (c.pnum == 3 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTOLEFT, false	-- flip P3 to the bottom.	
-		else -- else, that means we're P2 or P4.
-			return ITEM2_X, ITEM2_Y, (c.pnum == 4 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTORIGHT, true
-		end
-	end
+    if splitscreen < 2 then -- don't change shit for THIS splitscreen.
+        local ITEM_Y_OFF = ITEM_Y
+        if splitscreen == 1 then ITEM_Y_OFF = 3 end -- Apply insignificantly small offset for 2P splitscreen.
+        
+        if c.pnum == 1 then
+            return ITEM_X, ITEM_Y_OFF, V_SNAPTOTOP|V_SNAPTOLEFT, false
+        else
+            return ITEM_X, ITEM_Y_OFF, V_SNAPTOLEFT|V_SPLITSCREEN, false
+        end
+    else -- now we're having a fun game.
+        if c.pnum == 1 or c.pnum == 3 then -- If we are P1 or P3...
+            return ITEM1_X, ITEM1_Y, (c.pnum == 3 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTOLEFT, false    -- flip P3 to the bottom.    
+        else -- else, that means we're P2 or P4.
+            return ITEM2_X, ITEM2_Y, (c.pnum == 4 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTORIGHT, true
+        end
+    end
 end
 
 local function xItem_DrawItemBox(v, p, c, fill)
