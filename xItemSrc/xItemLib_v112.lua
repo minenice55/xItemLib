@@ -2691,22 +2691,22 @@ if not xItemLib then
 		end
 	end)
 
-	addHook("PlayerCmd", xItemLib.func.playerCmdHook)
+	addHook("PlayerCmd", function(p, cmd) xItemLib.func.playerCmdHook(p, cmd) end)
 
 	--dropped item behaviour
-	addHook("MobjThinker", xItemLib.func.floatingItemThinker, MT_FLOATINGITEM)
+	addHook("MobjThinker", function(mo) xItemLib.func.floatingItemThinker(mo) end, MT_FLOATINGITEM)
 
-	addHook("TouchSpecial", xItemLib.func.floatingItemSpecial, MT_FLOATINGITEM)
+	addHook("TouchSpecial", function(s, t) xItemLib.func.floatingItemSpecial(s, t) end, MT_FLOATINGITEM)
 
-	addHook("TouchSpecial", xItemLib.func.itemBoxSpecial, MT_RANDOMITEM)
+	addHook("TouchSpecial", function(s, t) xItemLib.func.itemBoxSpecial(s, t) end, MT_RANDOMITEM)
 	
-	addHook("MobjThinker", xItemLib.func.floatingXItemThinker, MT_FLOATINGXITEM)
+	addHook("MobjThinker", function(mo) xItemLib.func.floatingXItemThinker(mo) end, MT_FLOATINGXITEM)
 
-	addHook("TouchSpecial", xItemLib.func.floatingXItemSpecial, MT_FLOATINGXITEM)
+	addHook("TouchSpecial", function(s, t) xItemLib.func.floatingXItemSpecial(s, t) end, MT_FLOATINGXITEM)
 	
-	addHook("MobjThinker", xItemLib.func.playerArrowThinker, MT_XITEMPLAYERARROW)
+	addHook("MobjThinker", function(mo) xItemLib.func.playerArrowThinker(mo) end, MT_XITEMPLAYERARROW)
 	
-	addHook("MobjThinker", xItemLib.func.vanillaArrowThinker, MT_PLAYERARROW)
+	addHook("MobjThinker", function(mo) xItemLib.func.vanillaArrowThinker(mo) end, MT_PLAYERARROW)
 
 	xItemLib.func.addItem{"KITEM_SNEAKER", "Sneaker", "K_ITSHOE", "K_ISSHOE", vanillaItemProps["KITEM_SNEAKER"].flags, vanillaItemProps["KITEM_SNEAKER"].raceodds, vanillaItemProps["KITEM_SNEAKER"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 1}}, true, nil, nil}
 	xItemLib.func.addItem{"KITEM_ROCKETSNEAKER", "Rocket Sneaker", "K_ITRSHE", "K_ISRSHE", vanillaItemProps["KITEM_ROCKETSNEAKER"].flags, vanillaItemProps["KITEM_ROCKETSNEAKER"].raceodds, vanillaItemProps["KITEM_ROCKETSNEAKER"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 2}}, true, nil, nil}
