@@ -669,7 +669,7 @@ local function floatingXItemSpecial(s, t)
 	-- The bug we're trying to fix is from pickup limiting, don't run this if not the case.
 	if floatingitemspawner and s.spawnedbyspawner and s.limitpickup then
 		-- Don't run the collision hook if we'd be picking more than we have.
-		if kartstuff[k_itemamount] >= thing.movecount then return true end
+		if kartstuff[k_itemamount] >= s.movecount then return true end
 		-- Adjust to get the desired amount from the limited amount of pickups.
 		s.movecount = $ - kartstuff[k_itemamount]
 	end
