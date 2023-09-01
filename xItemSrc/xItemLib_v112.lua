@@ -735,13 +735,13 @@ end
 
 --thanks yoshimo for porting all this stuff over
 local function playerArrowUnsetPositionThinking(mobj, scale)
-	P_SetOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z + mobj.height + 16*FRACUNIT)
+	P_MoveOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z + mobj.height + 16*FRACUNIT)
 	
     mobj.angle = R_PointToAngle(mobj.x, mobj.y) + ANGLE_90 -- literally only happened because i wanted to ^L^R the SPR_ITEM's
 
     if not splitscreen and displayplayers[0].mo then
-        scale = mobj.target.scale + FixedMul(FixedDiv(abs(P_AproxDistance(displayplayers[0].mo.x-mobj.target.x,
-            displayplayers[0].mo.y-mobj.target.y)), RING_DIST), mobj.target.scale)
+        scale = mobj.target.scale + FixedMul(FixedDiv(abs(R_PointToDist2(displayplayers[0].mo.x, displayplayers[0].mo.y, 
+		mobj.target.x, mobj.target.y)), RING_DIST), mobj.target.scale)
         if scale > 16*mobj.target.scale then
             scale = 16*mobj.target.scale
         end
@@ -786,7 +786,7 @@ local function playerArrowThinker(mobj)
     if mobj and mobj.valid and mobj.target and mobj.target.health
         and mobj.target.player and not mobj.target.player.spectator
         and mobj.target.player.health and mobj.target.player.playerstate ~= PST_DEAD
-        --[[and displayplayers[0].mo and not displayplayers[0].spectator]]
+        -- and displayplayers[0].mo and not displayplayers[0].spectator
     then
 		local mtrace = mobj.tracer
 		local tm = mobj.target
