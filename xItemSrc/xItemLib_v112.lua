@@ -735,7 +735,7 @@ end
 
 --thanks yoshimo for porting all this stuff over
 local function playerArrowUnsetPositionThinking(mobj, scale)
-	P_SetOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z)
+	P_SetOrigin(mobj, mobj.target.x, mobj.target.y, mobj.target.z + mobj.height + 16*FRACUNIT)
 	
     mobj.angle = R_PointToAngle(mobj.x, mobj.y) + ANGLE_90 -- literally only happened because i wanted to ^L^R the SPR_ITEM's
 
