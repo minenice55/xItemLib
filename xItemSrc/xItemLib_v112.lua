@@ -2181,6 +2181,7 @@ local function findAvailableRoulettePatches(p, useodds, spbrush)
 	return available
 end
 
+local leveltimeEven = 0
 local function xItem_hudMain(v, p, c)
 	if not p then return end
 	if not p.xItemData then return end
@@ -2235,6 +2236,33 @@ local function xItem_hudMain(v, p, c)
 			--draw the roulette
 			elseif dat.xItem_roulette then
 				local av = availableItems[p.splitscreenindex + 1]
+
+				if leveltimeEven != leveltime % 2 and not (av and table.maxn(av)) then
+					local pingame = 0
+					local useodds = 0
+					local dontforcespb = false
+					local spbrush = false
+
+					for p in players.iterate do
+						if p.spectator then continue end
+						pingame = $+1
+						if (p.exiting) then
+							dontforcespb = true
+						end
+					end
+					if (pingame <= 2)
+						dontforcespb = true
+					end
+
+					if (G_RaceGametype())
+						spbrush = (spbplace ~= -1 and kartstuff[k_position] == spbplace+1)
+					end
+
+					useodds = libfn.findUseOdds(p, 0, pingame, spbrush, dontforcespb)
+					av = libfn.hudFindRouletteItems(p, useodds, 0, spbrush)
+					leveltimeEven = leveltime % 2
+				end
+
 				--print(splitnum(p))
 				if av and table.maxn(av) then
 					libfn.hudDrawItem(v, p, c, av[((leveltime/3) % table.maxn(av)) + 1])
