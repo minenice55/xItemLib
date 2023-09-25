@@ -1211,7 +1211,6 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	local oddsvalid = {}
 	local disttable = {}
 	local distlen = 0
-	--local debug_useoddsstopcode = 0
 	
 	local FAUXPOS = G_BattleGametype() and 2 or 10
 	
@@ -1224,7 +1223,6 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	for i = 1, FAUXPOS do
 		local available = false
 		for j = 1, libfn.countItems() do
-			--print("checking itemodds for item "..j.." at pos "..i)
 			if libfn.getOdds(i, j, mashed, spbrush, p) > 0 then
 				available = true
 				break
@@ -1270,7 +1268,6 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	else -- original vanilla calc
 		for p2 in players.iterate do
 			if p.mo and p2 and (not p2.spectator) and p2.mo and (p2.kartstuff[k_position] ~= 0) and p2.kartstuff[k_position] < pks[k_position] then
-				
 				pdis = $ + FixedHypot(FixedHypot(p.mo.x/4 - p2.mo.x/4, p.mo.y/4 - p2.mo.y/4), p.mo.z/4 - p2.mo.z/4)*4 / mapobjectscale * (pingame - p2.kartstuff[k_position]) / max(1, ((pingame - 1) * (pingame + 1) / 3))
 			end
 		end
@@ -1281,14 +1278,11 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 		if (pks[k_roulettetype] == 1 and oddsvalid[2])
 			-- 1 is the extreme odds of player-controlled "Karma" items
 			useodds = 2
-			--debug_useoddsstopcode = 8
 		else
 			useodds = 1
-			--debug_useoddsstopcode = 9
 			if (oddsvalid[1] == false and oddsvalid[2])
 				-- try to use karma odds as a fallback
 				useodds = 2
-				--debug_useoddsstopcode = 10
 			end
 		end
 	else
@@ -1318,29 +1312,21 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 		
 		if pingame == 1 and oddsvalid[1] then					-- Record Attack, or just alone
 			useodds = 1
-			--debug_useoddsstopcode = 0
 		elseif pdis <= 0 then									-- (64*14) *  0 =     0
 			useodds = disttable[1]
-			--debug_useoddsstopcode = 1
 		elseif pks[k_position] == 2 and oddsvalid[10] and (spbplace == -1) and (not indirectitemcooldown) and (not dontforcespb) and (pdis > distvar*6) then -- Force SPB in 2nd
 			useodds = 10
-			--debug_useoddsstopcode = 7
 		elseif pdis > distvar * ((12 * distlen) / 14) then -- (64*14) * 12 = 10752
 			useodds = disttable[distlen]
-			p.playerbot = nil
-			--debug_useoddsstopcode = 2
 		else
 			for i = 1, 12 do
 				if pdis <= distvar * ((i * distlen) / 14) then
 					useodds = disttable[((i * distlen) / 14)] + 1
-					--debug_useoddsstopcode = 3
 					break
 				end
 			end
 		end
 	end
-	--print("Got useodds "..useodds.." (kart useodds "..(useodds - 1).."). (position: "..p.kartstuff[k_position]..", distance: "..pdis..", stopcode: "..debug_useoddsstopcode..")") 
-	--debug_useoddsstopcode = nil
 	
 	lastpdis = pdis
 	
