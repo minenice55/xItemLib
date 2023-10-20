@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 112
 --current library revision (internal testing use)
-local currRevVer = 3
+local currRevVer = 4
 
 --item flags, people making custom items can copy/paste this over to their lua scripts
 local XIF_POWERITEM = 1 --is power item (affects final odds)
@@ -154,14 +154,18 @@ local function smuggleDetection()
 	end
 	
 	for i=1, #group
-		if group[i].kartstuff[k_position] <= 2
-		and (group[i].kartstuff[k_itemtype] == 1
-		or group[i].kartstuff[k_itemtype] == 2
-		or group[i].kartstuff[k_itemtype] == 3
-		or group[i].kartstuff[k_itemtype] == 11
-		or group[i].kartstuff[k_invincibilitytimer] > 0
-		or group[i].kartstuff[k_growshrinktimer] > 0
-		or (HugeQuest and group[i].hugequest.huge > 0))
+		if 
+			group[i].kartstuff[k_position] <= 2
+			and (
+				group[i].kartstuff[k_itemtype] == 1
+				or group[i].kartstuff[k_itemtype] == 2
+				or group[i].kartstuff[k_itemtype] == 3
+				or group[i].kartstuff[k_itemtype] == 11
+				or group[i].kartstuff[k_invincibilitytimer] > 0
+				or group[i].kartstuff[k_growshrinktimer] > 0
+				or (HugeQuest and group[i].hugequest.huge > 0)
+			)
+		then
 			--print("SMUGGLER DETECTED")
 			return true
 		end
@@ -1303,8 +1307,10 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 			pdis = (3 * $) >> 1
 		end
 		
-		if smuggleDetection()
-		and pks[k_position] > 1 then -- Haha, FUCK YOU
+		if xItemLib.cvars.bSmugglerBonus.value 
+			and smuggleDetection()
+			and pks[k_position] > 1 
+		then -- Haha, FUCK YOU
 			pdis = (6*$)/5
 		end
 
@@ -2639,6 +2645,13 @@ if not xItemLib then
 		possiblevalue = CV_YesNo
 	})
 	
+	xItemLib.cvars.bSmugglerBonus = CV_RegisterVar({ -- smuggler bonus
+		name = "xitemsmugglerbonus",
+		defaultvalue = "No",
+		flags = CV_NETVAR,
+		possiblevalue = CV_YesNo
+	})
+
 	local function spbOdds(newodds, pos, mashed, rush, p, secondist, pingame, pexiting)
 		local nod = newodds
 		local distvar = 64*14
@@ -2863,6 +2876,15 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		})
 
 		rawset(_G, "K_GetItemPatch", K_GetItemPatch)
+	end
+
+	if (xItemLib.gLibVersion < 112 or xItemLib.gLibVersion == 112 and xItemLib.gRevVersion < 4) then
+		xItemLib.cvars.bSmugglerBonus = CV_RegisterVar({ -- smuggler bonus
+			name = "xitemsmugglerbonus",
+			defaultvalue = "No",
+			flags = CV_NETVAR,
+			possiblevalue = CV_YesNo
+		})
 	end
 
 	xItemLib.gLibVersion = currLibVer
