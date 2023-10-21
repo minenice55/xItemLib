@@ -1672,9 +1672,19 @@ local function playerSpawn(p)
 	if not p.xItemData then return end
 	dat = p.xItemData
 
-	if dat.xItem_roulette then
-		dat.xItem_roulette = 0
+	if dat.xItem_roulette and leveltime then
+		-- restart the roulette if we have any roulette time
+		dat.xItem_roulette = 1
+		p.kartstuff[k_itemroulette] = 1
+	end
+end
+
+local function mapChange()
+	for p in players.iterate do
+		if not p.xItemData then continue end
+		p.xItemData.xItem_roulette = 0
 		p.kartstuff[k_itemroulette] = 0
+		libfn.resetItemOdds(0, p)
 	end
 end
 
@@ -2590,6 +2600,7 @@ if not xItemLib then
 	xItemLib.func.xItem_setPlayerItemCooldown = setPlayerItemCooldown
 	xItemLib.func.playerCmdHook = playerCmdHook
 	xItemLib.func.playerSpawn = playerSpawn
+	xItemLib.func.mapChange = mapChange
 	--here you go yoshimo lmao
 	xItemLib.func.canUseItem = canUseItem
 	--a
@@ -2849,6 +2860,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	xItemLib.func.hudDrawItemCooldownBox = xItem_DrawCooldownItemBox
 	xItemLib.func.playerCmdHook = playerCmdHook
 	xItemLib.func.playerSpawn = playerSpawn
+	xItemLib.func.mapChange = mapChange
 	xItemLib.func.xItem_DrawTimerBar = xItem_DrawTimerBar
 
 	xItemLib.func.getItemDataById = getItemDataById
