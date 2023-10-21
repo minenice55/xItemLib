@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 112
 --current library revision (internal testing use)
-local currRevVer = 4
+local currRevVer = 5
 
 --item flags, people making custom items can copy/paste this over to their lua scripts
 local XIF_POWERITEM = 1 --is power item (affects final odds)
@@ -19,6 +19,7 @@ local XIF_LOCKONUSE = 8 --locks the item slot when the item is used, slot must b
 local XIF_COOLDOWNINDIRECT = 16 --checks if indirectitemcooldown is 0
 local XIF_COLPATCH2PLAYER = 32 --map hud patch colour to player prefcolor
 local XIF_ICONFORAMT = 64 --item icon and dropped item frame changes depending on the item amount (animation frames become amount frames)
+local XIF_SMUGGLECHECK = 128 --item contributes to the smuggle detection
 
 -- Ashnal: for debug logging
 local lastpdis
@@ -26,9 +27,9 @@ local lastpdis
 -- Ashnal: I've moved vanilla item odds and flags up here for easy reference, this table is referenced much later when initializing vanilla items
 local vanillaItemProps = {}
 -- xItem useodds                                           1  2  3  4  5  6  7  8  9  10
-vanillaItemProps["KITEM_SNEAKER"]         = {raceodds =  {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = nil                                                    }
-vanillaItemProps["KITEM_ROCKETSNEAKER"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KITEM_INVINCIBILITY"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
+vanillaItemProps["KITEM_SNEAKER"]         = {raceodds =  {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = XIF_SMUGGLECHECK                                       }
+vanillaItemProps["KITEM_ROCKETSNEAKER"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_SMUGGLECHECK                         }
+vanillaItemProps["KITEM_INVINCIBILITY"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
 vanillaItemProps["KITEM_BANANA"]          = {raceodds =  { 0, 9, 4, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = nil                                                    }
 vanillaItemProps["KITEM_EGGMAN"]          = {raceodds =  { 0, 3, 2, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = nil                                                    }
 vanillaItemProps["KITEM_ORBINAUT"]        = {raceodds =  { 0, 7, 6, 4, 2, 0, 0, 0, 0, 0 }, battleodds = { 8, 0 }, flags = XIF_ICONFORAMT                                         }
@@ -36,7 +37,7 @@ vanillaItemProps["KITEM_JAWZ"]            = {raceodds =  { 0, 0, 3, 2, 1, 1, 0, 
 vanillaItemProps["KITEM_MINE"]            = {raceodds =  { 0, 0, 2, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 4, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
 vanillaItemProps["KITEM_BALLHOG"]         = {raceodds =  { 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM                                          }
 vanillaItemProps["KITEM_SPB"]             = {raceodds =  { 0, 0, 1, 2, 3, 4, 2, 2, 0,20 }, battleodds = { 0, 0 }, flags = XIF_COOLDOWNINDIRECT                                   }
-vanillaItemProps["KITEM_GROW"]            = {raceodds =  { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
+vanillaItemProps["KITEM_GROW"]            = {raceodds =  { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
 vanillaItemProps["KITEM_SHRINK"]          = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_COOLDOWNINDIRECT }
 vanillaItemProps["KITEM_THUNDERSHIELD"]   = {raceodds =  { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_UNIQUE           }
 vanillaItemProps["KITEM_HYUDORO"]         = {raceodds =  { 0, 0, 0, 0, 1, 2, 1, 0, 0, 0 }, battleodds = { 2, 0 }, flags = XIF_COOLDOWNONSTART|XIF_UNIQUE                         }
@@ -147,6 +148,8 @@ end
 
 local function smuggleDetection()
 	local group = {}
+	local itemData = {}
+	local itemFlags = 0
 	for p in players.iterate
 		if not p.spectator then
 			table.insert(group, p)
@@ -154,13 +157,17 @@ local function smuggleDetection()
 	end
 	
 	for i=1, #group
+		itemFlags = 0
+		if group[i].kartstuff[k_itemtype] then
+			itemData = xItemLib.func.getItemDataById(group[i].kartstuff[k_itemtype])
+			if itemData then
+				itemFlags = itemData.flags
+			end
+		end
 		if 
 			group[i].kartstuff[k_position] <= 2
 			and (
-				group[i].kartstuff[k_itemtype] == 1
-				or group[i].kartstuff[k_itemtype] == 2
-				or group[i].kartstuff[k_itemtype] == 3
-				or group[i].kartstuff[k_itemtype] == 11
+				(itemFlags and (itemFlags & XIF_SMUGGLECHECK))
 				or group[i].kartstuff[k_invincibilitytimer] > 0
 				or group[i].kartstuff[k_growshrinktimer] > 0
 				or (HugeQuest and group[i].hugequest.huge > 0)
@@ -1364,8 +1371,9 @@ local function xItem_ItemRoulette(p, cmd)
 	local libdat = xItemLib
 	local libfn = libdat.func
 	
-	if leveltime == 0 then
+	if leveltime == 0 or p.spectator then
 		dat.xItem_roulette = 0
+		kartstuff[k_roulettetype] = 0
 		libfn.resetItemOdds(0, p)
 	end
 	--stripped during roulette clears our fake one
@@ -1401,7 +1409,7 @@ local function xItem_ItemRoulette(p, cmd)
 		end
 	end
 	
-	if dat.xItem_roulette then
+	if dat.xItem_roulette and p.mo and p.mo.health then
 		kartstuff[k_itemroulette] = 4
 		dat.xItem_roulette = $+1
 	else
@@ -1426,7 +1434,7 @@ local function xItem_ItemRoulette(p, cmd)
 
 	
 	-- This makes the roulette produce the random noises.
-	if P_IsLocalPlayer(p) and dat.xItem_roulette % 3 == 1 then
+	if P_IsLocalPlayer(p) and dat.xItem_roulette % 3 == 1 and p.mo and p.mo.health then
 		S_StartSound(nil, sfx_itrol1 + ((dat.xItem_roulette / 3) % 8), p)
 	end
 	
@@ -1441,7 +1449,8 @@ local function xItem_ItemRoulette(p, cmd)
 		availableItems[splitplaynum] = libfn.hudFindRouletteItems(p, useodds, 0, spbrush)
 	end
 	
-	if (not p.spectator) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and libdat.toggles.debugItem and libdat.cvars.bXRig.value then
+	if (p and p.mo and p.mo.health and not (p.spectator or p.exiting)) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and libdat.toggles.debugItem and libdat.cvars.bXRig.value then
+		kartstuff[k_itemroulette] = TICRATE*3
 		dat.xItem_roulette = TICRATE*3
 	end
 	if (((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and not (kartstuff[k_eggmanheld] or kartstuff[k_itemheld]) and dat.xItem_roulette >= roulettestop and not modeattacking) then
@@ -1654,6 +1663,28 @@ local function playerCmdHook(p, cmd)
 		if cmd.buttons & BT_ATTACK then
 			cmd.buttons = ($|XBT_ATTACKDISABLED) & ~BT_ATTACK
 		end
+	end
+end
+
+local function playerSpawn(p)
+	if not p then return end
+	if p.spectator or p.exiting then return end
+	if not p.xItemData then return end
+	dat = p.xItemData
+
+	if dat.xItem_roulette and leveltime then
+		-- restart the roulette if we have any roulette time
+		dat.xItem_roulette = 1
+		p.kartstuff[k_itemroulette] = 1
+	end
+end
+
+local function mapChange()
+	for p in players.iterate do
+		if not p.xItemData then continue end
+		p.xItemData.xItem_roulette = 0
+		p.kartstuff[k_itemroulette] = 0
+		xItemLib.func.resetItemOdds(0, p)
 	end
 end
 
@@ -2257,7 +2288,7 @@ local function xItem_hudMain(v, p, c)
 
 				--print(splitnum(p))
 				if av and table.maxn(av) then
-					libfn.hudDrawItem(v, p, c, av[((leveltime/3) % table.maxn(av)) + 1])
+					libfn.hudDrawItem(v, p, c, av[((dat.xItem_roulette/3) % table.maxn(av)) + 1])
 				end
 			--draw the held item
 			elseif kartstuff[k_itemtype] then
@@ -2568,6 +2599,8 @@ if not xItemLib then
 	xItemLib.func.xItem_handleDistributionDebugger = xItem_handleDistributionDebugger
 	xItemLib.func.xItem_setPlayerItemCooldown = setPlayerItemCooldown
 	xItemLib.func.playerCmdHook = playerCmdHook
+	xItemLib.func.playerSpawn = playerSpawn
+	xItemLib.func.mapChange = mapChange
 	--here you go yoshimo lmao
 	xItemLib.func.canUseItem = canUseItem
 	--a
@@ -2733,6 +2766,10 @@ if not xItemLib then
 
 	addHook("PlayerCmd", function(p, cmd) xItemLib.func.playerCmdHook(p, cmd) end)
 
+	addHook("PlayerSpawn", function(p) xItemLib.func.playerSpawn(p) end)
+
+	addHook("MapChange", function() xItemLib.func.mapChange() end)
+
 	--dropped item behaviour
 	addHook("MobjThinker", function(mo) xItemLib.func.floatingItemThinker(mo) end, MT_FLOATINGITEM)
 
@@ -2824,6 +2861,8 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	xItemLib.func.hudDrawItemCooldown = xItem_DrawItemMinecraftCooldown
 	xItemLib.func.hudDrawItemCooldownBox = xItem_DrawCooldownItemBox
 	xItemLib.func.playerCmdHook = playerCmdHook
+	xItemLib.func.playerSpawn = playerSpawn
+	xItemLib.func.mapChange = mapChange
 	xItemLib.func.xItem_DrawTimerBar = xItem_DrawTimerBar
 
 	xItemLib.func.getItemDataById = getItemDataById
@@ -2840,8 +2879,8 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		COM_AddCommand("listxitem", xItemLib.func.listItem, 4)
 		rawset(_G, "K_FlipFromObject", K_FlipFromObject)
 
-		xItemLib.xItemData[xItemLib.xItemNamespaces["KITEM_INVINCIBILITY"]].flags = XIF_COOLDOWNONSTART
-		xItemLib.xItemData[xItemLib.xItemNamespaces["KITEM_MINE"]].flags = XIF_COOLDOWNONSTART
+		xItemLib.xItemData[xItemLib.xItemNamespaces["KITEM_INVINCIBILITY"]].flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK
+		xItemLib.xItemData[xItemLib.xItemNamespaces["KITEM_MINE"]].flags = XIF_POWERITEM|XIF_COOLDOWNONSTART
 
 		xItemLib.cvars.bXRig = CV_RegisterVar({ --rig 2
 			name = "xitemdebugrig",
