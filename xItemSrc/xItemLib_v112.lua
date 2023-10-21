@@ -1684,7 +1684,7 @@ local function mapChange()
 		if not p.xItemData then continue end
 		p.xItemData.xItem_roulette = 0
 		p.kartstuff[k_itemroulette] = 0
-		libfn.resetItemOdds(0, p)
+		xItemLib.func.resetItemOdds(0, p)
 	end
 end
 
@@ -2767,6 +2767,8 @@ if not xItemLib then
 	addHook("PlayerCmd", function(p, cmd) xItemLib.func.playerCmdHook(p, cmd) end)
 
 	addHook("PlayerSpawn", function(p) xItemLib.func.playerSpawn(p) end)
+
+	addHook("MapChange", function() xItemLib.func.mapChange() end)
 
 	--dropped item behaviour
 	addHook("MobjThinker", function(mo) xItemLib.func.floatingItemThinker(mo) end, MT_FLOATINGITEM)
