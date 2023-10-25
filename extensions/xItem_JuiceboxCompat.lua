@@ -101,7 +101,7 @@ function JuiceExt.postplayerthink(p, cmd)
 				p.JBspy.flags2 = $ & ~MF2_SHADOW
 				p.JBspy.tracer.flags2 = $ & ~MF2_SHADOW				
 			end
-			if p != JUICEBOX_dp and p.playerstate == PST_LIVE and itemSpyEligible(JUICEBOX_dp) and ks[k_itemamount] then
+			if p != JUICEBOX_dp and p.playerstate == PST_LIVE and itemSpyEligible(JUICEBOX_dp) and p.kartstuff[k_itemamount] then
 				p.JBspy.flags2 = $ & (~MF2_DONTDRAW)
 				p.JBspy.tracer.flags2 = $ & (~MF2_DONTDRAW)
 			end
