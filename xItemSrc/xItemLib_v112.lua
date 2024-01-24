@@ -655,7 +655,7 @@ end
 
 local function floatingXItemSpecial(s, t)
 	if not t.player then
-		return
+		return true
 	end
 	
 	local libdat = xItemLib
@@ -667,25 +667,40 @@ local function floatingXItemSpecial(s, t)
 	--hell
 	if p.xItemData and (p.xItemData.xItem_roulette > 0 or p.xItemData.xItem_itemSlotLocked
 		or kartstuff[k_stealingtimer] > 0 or kartstuff[k_stolentimer] > 0 or kartstuff[k_growshrinktimer] > 0 or kartstuff[k_rocketsneakertimer] > 0
-		or kartstuff[k_eggmanexplode] > 0 or (kartstuff[k_itemtype] and kartstuff[k_itemtype] ~= s.threshold) or kartstuff[k_itemheld]) then
+		or kartstuff[k_eggmanexplode] > 0 or kartstuff[k_itemheld]) then
 		return true
 	end
 	
 	if (G_BattleGametype() and kartstuff[k_bumper] <= 0)
 		return true
 	end
-
+	
 	-- Issue #12
 	-- Only kick in if floating item spawner is loaded + item is from spawner.
 	-- The bug we're trying to fix is from pickup limiting, don't run this if not the case.
 	if floatingitemspawner and s.spawnedbyspawner and s.limitpickup then
 		-- Don't run the collision hook if we'd be picking more than we have.
 		if kartstuff[k_itemamount] >= s.movecount then return true end
+	end
+	
+	print("trying to up item "..s.threshold.." (x"..s.movecount..")")
+	print("player has item "..kartstuff[k_itemtype].." (x"..kartstuff[k_itemamount]..")")
+	if (kartstuff[k_itemtype] ~= s.threshold) and (kartstuff[k_itemamount] > 0) then
+		print(kartstuff[k_itemtype] ~= s.threshold)
+		return true
+	end
+	print("passed item check")
+	print("trying to up item "..s.threshold.." (x"..s.movecount..")")
+	print("player has item "..kartstuff[k_itemtype].." (x"..kartstuff[k_itemamount]..")")
+	
+	kartstuff[k_itemtype] = s.threshold
+	-- Issue #12
+	-- Only kick in if floating item spawner is loaded + item is from spawner.
+	-- The bug we're trying to fix is from pickup limiting, don't run this if not the case.
+	if floatingitemspawner and s.spawnedbyspawner and s.limitpickup then
 		-- Adjust to get the desired amount from the limited amount of pickups.
 		s.movecount = $ - kartstuff[k_itemamount]
 	end
-
-	kartstuff[k_itemtype] = s.threshold
 	kartstuff[k_itemamount] = $ + s.movecount
 
 	local it = libfunc.getItemDataById(s.threshold)
@@ -699,10 +714,6 @@ local function floatingXItemSpecial(s, t)
 			error(err, 2)
 		end
 	end
-	-- nah
-	--if (kartstuff[k_itemamount] > 255) then
-	--	kartstuff[k_itemamount] = 255
-	--end
 
 	--run getfunc here too
 	if it and it.getfunc then
@@ -2526,6 +2537,24 @@ local function playerThinkFrame(p)
 	end
 end
 
+local function incItem(p)
+	if not p then return end
+	if p.spectator then return end
+	if p.mobj == nil then return end
+	if not p.xItemData then return end
+	if p.kartstuff[k_itemamount] == 0 then return end
+	p.kartstuff[k_itemamount] = p.kartstuff[k_itemamount] + 1
+end
+
+local function decItem(p)
+	if not p then return end
+	if p.spectator then return end
+	if p.mobj == nil then return end
+	if not p.xItemData then return end
+	if p.kartstuff[k_itemamount] == 0 then return end
+	p.kartstuff[k_itemamount] = p.kartstuff[k_itemamount] - 1
+end
+
 if not xItemLib then
 	print("\3\135xItemLib\n\128by \130minenice\128")
 	print("Initial xItemLib loading...")
@@ -2621,11 +2650,14 @@ if not xItemLib then
 	xItemLib.func.setDebugItem = setDebugItem
 	xItemLib.func.toggleItem = toggleItem
 	xItemLib.func.listItem = listItem
-	
+	xItemLib.func.incItem = incItem
+	xItemLib.func.decItem = decItem
 	
 	COM_AddCommand("xitemdebugitem", xItemLib.func.setDebugItem, 1) --equivalent to kartdebugitem, can also take item names
 	COM_AddCommand("togglexitem", xItemLib.func.toggleItem, 1) --toggles specified items, or all if none specified
 	COM_AddCommand("listxitem", xItemLib.func.listItem, 4) --prints all item names to the console
+	COM_AddCommand("incxitem", xItemLib.func.incItem, 1) --increments item count
+	COM_AddCommand("decxitem", xItemLib.func.decItem, 1) --increments item count
 	
 	xItemLib.cvars.dItemDebugAmt = CV_RegisterVar({ --equivalent to kartdebugamount
 		name = "xitemdebugamount",
@@ -2773,13 +2805,13 @@ if not xItemLib then
 	--dropped item behaviour
 	addHook("MobjThinker", function(mo) xItemLib.func.floatingItemThinker(mo) end, MT_FLOATINGITEM)
 
-	addHook("TouchSpecial", function(s, t) xItemLib.func.floatingItemSpecial(s, t) end, MT_FLOATINGITEM)
+	addHook("TouchSpecial", function(s, t) return xItemLib.func.floatingItemSpecial(s, t) end, MT_FLOATINGITEM)
 
-	addHook("TouchSpecial", function(s, t) xItemLib.func.itemBoxSpecial(s, t) end, MT_RANDOMITEM)
+	addHook("TouchSpecial", function(s, t) return xItemLib.func.itemBoxSpecial(s, t) end, MT_RANDOMITEM)
 	
 	addHook("MobjThinker", function(mo) xItemLib.func.floatingXItemThinker(mo) end, MT_FLOATINGXITEM)
 
-	addHook("TouchSpecial", function(s, t) xItemLib.func.floatingXItemSpecial(s, t) end, MT_FLOATINGXITEM)
+	addHook("TouchSpecial", function(s, t) return xItemLib.func.floatingXItemSpecial(s, t) end, MT_FLOATINGXITEM)
 	
 	addHook("MobjThinker", function(mo) xItemLib.func.playerArrowThinker(mo) end, MT_XITEMPLAYERARROW)
 	
