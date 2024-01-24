@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 112
 --current library revision (internal testing use)
-local currRevVer = 5
+local currRevVer = 6
 
 --item flags, people making custom items can copy/paste this over to their lua scripts
 local XIF_POWERITEM = 1 --is power item (affects final odds)
@@ -2650,14 +2650,10 @@ if not xItemLib then
 	xItemLib.func.setDebugItem = setDebugItem
 	xItemLib.func.toggleItem = toggleItem
 	xItemLib.func.listItem = listItem
-	xItemLib.func.incItem = incItem
-	xItemLib.func.decItem = decItem
 	
 	COM_AddCommand("xitemdebugitem", xItemLib.func.setDebugItem, 1) --equivalent to kartdebugitem, can also take item names
 	COM_AddCommand("togglexitem", xItemLib.func.toggleItem, 1) --toggles specified items, or all if none specified
 	COM_AddCommand("listxitem", xItemLib.func.listItem, 4) --prints all item names to the console
-	COM_AddCommand("incxitem", xItemLib.func.incItem, 1) --increments item count
-	COM_AddCommand("decxitem", xItemLib.func.decItem, 1) --increments item count
 	
 	xItemLib.cvars.dItemDebugAmt = CV_RegisterVar({ --equivalent to kartdebugamount
 		name = "xitemdebugamount",
