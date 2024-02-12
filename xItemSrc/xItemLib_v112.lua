@@ -683,15 +683,9 @@ local function floatingXItemSpecial(s, t)
 		if kartstuff[k_itemamount] >= s.movecount then return true end
 	end
 	
-	print("trying to up item "..s.threshold.." (x"..s.movecount..")")
-	print("player has item "..kartstuff[k_itemtype].." (x"..kartstuff[k_itemamount]..")")
 	if (kartstuff[k_itemtype] ~= s.threshold) and (kartstuff[k_itemamount] > 0) then
-		print(kartstuff[k_itemtype] ~= s.threshold)
 		return true
 	end
-	print("passed item check")
-	print("trying to up item "..s.threshold.." (x"..s.movecount..")")
-	print("player has item "..kartstuff[k_itemtype].." (x"..kartstuff[k_itemamount]..")")
 	
 	kartstuff[k_itemtype] = s.threshold
 	-- Issue #12
