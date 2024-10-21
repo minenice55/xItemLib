@@ -768,23 +768,27 @@ local function vanillaArrowThinker(mo)
 	for i = 1, #xItemLib.xItemModNamespaces do
 		local fn = libfunc.getXItemModValue(i, -1, "playerArrowSpawn")
 		if fn == nil or (not type(fn) == "function") then continue end
-		local status, err = pcall(fn, mo, mo.target)
+		status, err = pcall(fn, mo, mo.target)
 		if not status then
 			error(err, 2)
 		end
 	end
 	
-	local f = P_SpawnMobj(mo.x, mo.y, mo.z, MT_XITEMPLAYERARROW)
-	f.threshold = mo.threshold
-	f.movecount = mo.movecount
-	f.flags = mo.flags
-	f.flags2 = mo.flags2
-	f.target = mo.target
-	--f.tracer = mo.tracer
-	f.scale = mo.scale
-	f.destscale = mo.destscale
-	f.state = mo.state
-	mo.state = S_NULL
+	if err then
+		mo.state = S_NULL
+	else
+		local f = P_SpawnMobj(mo.x, mo.y, mo.z, MT_XITEMPLAYERARROW)
+		f.threshold = mo.threshold
+		f.movecount = mo.movecount
+		f.flags = mo.flags
+		f.flags2 = mo.flags2
+		f.target = mo.target
+		--f.tracer = mo.tracer
+		f.scale = mo.scale
+		f.destscale = mo.destscale
+		f.state = mo.state
+		mo.state = S_NULL
+	end
 end
 
 local function playerArrowThinker(mobj)
