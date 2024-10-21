@@ -332,7 +332,6 @@ local function ClassXItem(num, namespace, iName, bigpatch, smallpatch, flags, ra
 		droppedfunc = droppedfunc or nil, --function that runs when the dropped item first spawns upon a strip, function(droppedMo, item, itemAmount), can return a spriteframe override
 		showInRoulette = showInRoulette or nil, --function or boolean that determines wether to show the item in the roulette if function expected to return a boolean
 		preusefunc = preusefunc or nil, --function that runs when th player is holding the attack button, before the item is used. the usefunc will run when the button is released instead of when pressed. function(player, cmd, ticsAttackHeld, playerJustPressedAttack?)
-		toggled = true,
 		patches = itemPatch,
 	}
 
@@ -404,9 +403,9 @@ local function addXItem(namespace, iName, bigpatch, smallpatch, flags, raceodds,
 	if flags then
 		xItemLib.xItemFlags[item] = flags
 	end
+	----end legacy behaviour----
 
 	xItemLib.toggles.xItemToggles[item] = true
-	----end legacy behaviour----
 
 	--add extension data
 	xItemLib.xItemCrossData.itemData[item] = {}
