@@ -1581,24 +1581,6 @@ local function xItem_ItemRoulette(p, cmd)
 		return
 	end
 
-	if (def_superring)
-	-- SPECIAL CASE No. 3:
-	-- Record Attack / alone mashing behavior
-		if (modeattacking or pingame == 1) then
-			if (mashed and (xItemLib.toggles.xItemToggles[KITEM_SUPERRING] or libfn.getCVar("superring"))) then -- ANY mashed value? You get rings.
-				libfn.getItemResult(p, KITEM_SUPERRING, false);
-				kartstuff[k_itemblinkmode] = 1;
-				if (P_IsLocalPlayer(p)) then
-					S_StartSound(NULL, sfx_itrolm);
-				end
-				kartstuff[k_itemblink] = TICRATE;
-				kartstuff[k_itemroulette] = 0;
-				kartstuff[k_roulettetype] = 0;
-				return;
-			end
-		end
-	end
-
 	for i = 1, #xItemLib.xItemModNamespaces do
 		local fn = libfn.getXItemModValue(i, -1, "enditemroll")
 		if fn == nil or (not type(fn) == "function") then continue end
