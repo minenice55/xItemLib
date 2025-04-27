@@ -7,9 +7,20 @@
 --however this does work as it's own standalone mod, if you just want the enhancements
 
 --current library version (release, major, minor)
-local currLibVer = 120
+local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 1
+local currRevVer = 0
+
+--saturn featureset
+local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
+--neptune featureset
+local def_neptune = NEPTUNEVERSION != nil
+-- don't use this here will need its own thing
+local def_blank = CODEBASE >= 220
+if (def_blank) then
+	print("xItemLib is not compatible with this version of SRB2Kart.")
+	return
+end
 
 --item flags, people making custom items can copy/paste this over to their lua scripts
 local XIF_POWERITEM = 1 --is power item (affects final odds)
@@ -20,41 +31,38 @@ local XIF_COOLDOWNINDIRECT = 16 --checks if indirectitemcooldown is 0
 local XIF_COLPATCH2PLAYER = 32 --map hud patch colour to player prefcolor
 local XIF_ICONFORAMT = 64 --item icon and dropped item frame changes depending on the item amount (animation frames become amount frames)
 local XIF_SMUGGLECHECK = 128 --item contributes to the smuggle detection
+local XIF_NOTNEAREND = 256 --item should not appear at the end of a race
 
 -- Ashnal: for debug logging
 local lastpdis
 
--- flag from messing around with ebd09a099
-local def_superring = KITEM_SUPERRING != nil
-
 -- Ashnal: I've moved vanilla item odds and flags up here for easy reference, this table is referenced much later when initializing vanilla items
 local vanillaItemProps = {}
--- xItem useodds                                           1  2  3  4  5  6  7  8  9  10
-if (def_superring)
-	vanillaItemProps["KITEM_SUPERRING"]       = {raceodds =  {10, 2, 1, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, flags = nil                                       			 }
-end
-vanillaItemProps["KITEM_SNEAKER"]         = {raceodds =  {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = XIF_SMUGGLECHECK                                       }
-vanillaItemProps["KITEM_ROCKETSNEAKER"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_SMUGGLECHECK                         }
-vanillaItemProps["KITEM_INVINCIBILITY"]   = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
-vanillaItemProps["KITEM_BANANA"]          = {raceodds =  { 0, 9, 4, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = nil                                                    }
-vanillaItemProps["KITEM_EGGMAN"]          = {raceodds =  { 0, 3, 2, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = nil                                                    }
-vanillaItemProps["KITEM_ORBINAUT"]        = {raceodds =  { 0, 7, 6, 4, 2, 0, 0, 0, 0, 0 }, battleodds = { 8, 0 }, flags = XIF_ICONFORAMT                                         }
-vanillaItemProps["KITEM_JAWZ"]            = {raceodds =  { 0, 0, 3, 2, 1, 1, 0, 0, 0, 0 }, battleodds = { 8, 1 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KITEM_MINE"]            = {raceodds =  { 0, 0, 2, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 4, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
-vanillaItemProps["KITEM_BALLHOG"]         = {raceodds =  { 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KITEM_SPB"]             = {raceodds =  { 0, 0, 1, 2, 3, 4, 2, 2, 0,20 }, battleodds = { 0, 0 }, flags = XIF_COOLDOWNINDIRECT                                   }
-vanillaItemProps["KITEM_GROW"]            = {raceodds =  { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
-vanillaItemProps["KITEM_SHRINK"]          = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_COOLDOWNINDIRECT }
-vanillaItemProps["KITEM_THUNDERSHIELD"]   = {raceodds =  { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_UNIQUE           }
-vanillaItemProps["KITEM_HYUDORO"]         = {raceodds =  { 0, 0, 0, 0, 1, 2, 1, 0, 0, 0 }, battleodds = { 2, 0 }, flags = XIF_COOLDOWNONSTART|XIF_UNIQUE                         }
-vanillaItemProps["KITEM_POGOSPRING"]      = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, flags = nil                                                    }
-vanillaItemProps["KITEM_KITCHENSINK"]     = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, flags = nil                                                    }
-vanillaItemProps["KRITEM_TRIPLESNEAKER"]  = {raceodds =  { 0, 0, 0, 0, 3, 7, 9, 2, 0, 0 }, battleodds = { 0, 1 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_TRIPLEBANANA"]   = {raceodds =  { 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_TENFOLDBANANA"]  = {raceodds =  { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 }, battleodds = { 0, 1 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_TRIPLEORBINAUT"] = {raceodds =  { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_QUADORBINAUT"]   = {raceodds =  { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, battleodds = { 1, 1 }, flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_DUALJAWZ"]       = {raceodds =  { 0, 0, 0, 1, 2, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, flags = XIF_POWERITEM                                          }
+-- xItem useodds                                             1  2  3  4  5  6  7  8  9  10
+--                                                           A  B  C  D  E  F  G  H  I  J
+vanillaItemProps["KITEM_SNEAKER"]           = {raceodds =  {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Sneaker", flags = XIF_SMUGGLECHECK                                       }
+vanillaItemProps["KITEM_ROCKETSNEAKER"]     = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, battleodds = { 0, 0 }, name = "Rocket Sneaker", flags = XIF_POWERITEM|XIF_SMUGGLECHECK                         }
+vanillaItemProps["KITEM_INVINCIBILITY"]     = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, battleodds = { 2, 1 }, name = "Invincibility", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
+vanillaItemProps["KITEM_BANANA"]            = {raceodds =  { 0, 9, 4, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Banana", flags = nil                                                    }
+vanillaItemProps["KITEM_EGGMAN"]            = {raceodds =  { 0, 3, 2, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Eggman Monitor", flags = nil                                                    }
+vanillaItemProps["KITEM_ORBINAUT"]          = {raceodds =  { 0, 7, 6, 4, 2, 0, 0, 0, 0, 0 }, battleodds = { 8, 0 }, name = "Orbinaut", flags = XIF_ICONFORAMT                                         }
+vanillaItemProps["KITEM_JAWZ"]              = {raceodds =  { 0, 0, 3, 2, 1, 1, 0, 0, 0, 0 }, battleodds = { 8, 1 }, name = "Jawz", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KITEM_MINE"]              = {raceodds =  { 0, 0, 2, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 4, 1 }, name = "Mine", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
+vanillaItemProps["KITEM_BALLHOG"]           = {raceodds =  { 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Ballhog", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KITEM_SPB"]               = {raceodds =  { 0, 0, 1, 2, 3, 4, 2, 2, 0,20 }, battleodds = { 0, 0 }, name = "Self-Propelled Bomb", flags = XIF_COOLDOWNINDIRECT                                   }
+vanillaItemProps["KITEM_GROW"]              = {raceodds =  { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, battleodds = { 2, 1 }, name = "Grow", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
+vanillaItemProps["KITEM_SHRINK"]            = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 }, battleodds = { 0, 0 }, name = "Shrink", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_COOLDOWNINDIRECT }
+vanillaItemProps["KITEM_THUNDERSHIELD"]     = {raceodds =  { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, name = "Thunder Shield", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_UNIQUE           }
+vanillaItemProps["KITEM_HYUDORO"]           = {raceodds =  { 0, 0, 0, 0, 1, 2, 1, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Hyudoro", flags = XIF_COOLDOWNONSTART|XIF_UNIQUE                         }
+vanillaItemProps["KITEM_POGOSPRING"]        = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Pogo Spring", flags = nil                                                    }
+vanillaItemProps["KITEM_KITCHENSINK"]       = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, name = "Kitchen Sink", flags = nil                                                    }
+
+vanillaItemProps["KRITEM_TRIPLESNEAKER"]    = {raceodds =  { 0, 0, 0, 0, 3, 7, 9, 2, 0, 0 }, battleodds = { 0, 1 }, name = "Triple Sneaker", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_TRIPLEBANANA"]     = {raceodds =  { 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Triple Banana", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_TENFOLDBANANA"]    = {raceodds =  { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 }, battleodds = { 0, 1 }, name = "Deca Banana", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_TRIPLEORBINAUT"]   = {raceodds =  { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Triple Orbinaut", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_QUADORBINAUT"]     = {raceodds =  { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, battleodds = { 1, 1 }, name = "Quad Orbinaut", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_DUALJAWZ"]         = {raceodds =  { 0, 0, 0, 1, 2, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Dual Jawz", flags = XIF_POWERITEM                                          }
 
 local XBT_ATTACKDISABLED = 1<<7
 
@@ -1020,6 +1028,34 @@ local function xItem_GetItemResult(p, getitem, onlyReturn, skipGetFunc)
 	return itr, amtr
 end
 
+local nepodds_cvarmap = {}
+if (def_neptune) then
+	nepodds_cvarmap = {
+		"SITBL",
+		"RSITBL",
+		"INITBL",
+		"BANITBL",
+		"EGGITBL",
+		"ORBITBL",
+		"JAWITBL",
+		"MINITBL",
+		"BALITBL",
+		"SPBITBL",
+		"GROITBL",
+		"SHRITBL",
+		"THUITBL",
+		"HYUITBL",
+		"POGITBL",
+		"KITITBL",
+
+		"TSITBL",
+		"TBAITBL",
+		"TENITBL",
+		"TORITBL",
+		"QUOITBL",
+		"DJAITBL"
+	}
+end
 local function xItem_GetOdds(pos, item, mashed, spbrush, p, custTable)
 	local newodds = 0
 	local pingame = 0
@@ -1035,55 +1071,43 @@ local function xItem_GetOdds(pos, item, mashed, spbrush, p, custTable)
 	if not p then return end
 	local dat = p.xItemData
 
-	local itemenabled = {
-		libfn.getCVar("sneaker"),
-		libfn.getCVar("rocketsneaker"),
-		libfn.getCVar("invincibility"),
-		libfn.getCVar("banana"),
-		libfn.getCVar("eggmanmonitor"),
-		libfn.getCVar("orbinaut"),
-		libfn.getCVar("jawz"),
-		libfn.getCVar("mine"),
-		libfn.getCVar("ballhog"),
-		libfn.getCVar("selfpropelledbomb"),
-		libfn.getCVar("grow"),
-		libfn.getCVar("shrink"), 
-		libfn.getCVar("thundershield"),
-		libfn.getCVar("hyudoro"),
-		libfn.getCVar("pogospring"),
-		libfn.getCVar("kitchensink"),
-		libfn.getCVar("triplesneaker"),
-		libfn.getCVar("triplebanana"),
-		libfn.getCVar("decabanana"),
-		libfn.getCVar("tripleorbinaut"),
-		libfn.getCVar("quadorbinaut"),
-		libfn.getCVar("dualjawz")
-	}
-	
-	if (def_superring)
-		table.insert(itemenabled, 1, libfn.getCVar("superring"))
-	end
+	local itemenabled = {}
+	table.insert(itemenabled, libfn.getCVar("sneaker"))
+	table.insert(itemenabled, libfn.getCVar("rocketsneaker"))
+	table.insert(itemenabled, libfn.getCVar("invincibility"))
+	table.insert(itemenabled, libfn.getCVar("banana"))
+	table.insert(itemenabled, libfn.getCVar("eggmanmonitor"))
+	table.insert(itemenabled, libfn.getCVar("orbinaut"))
+	table.insert(itemenabled, libfn.getCVar("jawz"))
+	table.insert(itemenabled, libfn.getCVar("mine"))
+	table.insert(itemenabled, libfn.getCVar("ballhog"))
+	table.insert(itemenabled, libfn.getCVar("selfpropelledbomb"))
+	table.insert(itemenabled, libfn.getCVar("grow"))
+	table.insert(itemenabled, libfn.getCVar("shrink"))
+	table.insert(itemenabled, libfn.getCVar("thundershield"))
+	table.insert(itemenabled, libfn.getCVar("hyudoro"))
+	table.insert(itemenabled, libfn.getCVar("pogospring"))
+	table.insert(itemenabled, libfn.getCVar("kitchensink"))
+
+	table.insert(itemenabled, libfn.getCVar("triplesneaker"))
+	table.insert(itemenabled, libfn.getCVar("triplebanana"))
+	table.insert(itemenabled, libfn.getCVar("decabanana"))
+	table.insert(itemenabled, libfn.getCVar("tripleorbinaut"))
+	table.insert(itemenabled, libfn.getCVar("quadorbinaut"))
+	table.insert(itemenabled, libfn.getCVar("dualjawz"))
 	
 	if item <= 0 then return 0 end
 	
-	if custTable then
-		if (not custTable[item]) or (not custTable[item][pos]) then
-			if (G_BattleGametype()) then
-				if dat and dat.xItem_battleOdds and dat.xItem_battleOdds[item] then
-					newodds = dat.xItem_battleOdds[item][pos]
-				else
-					newodds = xItemLib.xItemOddsBattle[item][pos]
-				end
-			else
-				if dat and dat.xItem_raceOdds and dat.xItem_raceOdds[item] then
-					newodds = dat.xItem_raceOdds[item][pos]
-				else
-					newodds = xItemLib.xItemOddsRace[item][pos]
-				end
+	if (def_neptune) then
+		if libfn.getCVar("customodds") then
+			newodds = libfn.getCVar(string.format("%s%d", nepodds_cvarmap[item], pos))
+			if newodds == nil then
+				newodds = 0
 			end
-		else
-			newodds = custTable[item][pos]
 		end
+	end
+	if custTable and custTable[item] and custTable[item][pos] then
+		newodds = custTable[item][pos]
 	else
 		if (G_BattleGametype()) then
 			if dat and dat.xItem_battleOdds and dat.xItem_battleOdds[item] then
@@ -1253,10 +1277,22 @@ local function calculatePlayerDistance(p, pingame)
 	return pdis
 end
 
+local function getDistVar()
+	if (def_neptune) then
+		if xItemLib.cvars.bItemDistCalcConga.value then
+			return xItemLib.func.getCVar("cepdistvar")
+		else
+			return xItemLib.func.getCVar("uranusdistvar")
+		end
+	end
+	return xItemLib.cvars.iCustomDistVar.value
+end
+
 local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	if not p then return end
+	local libfn = xItemLib.func
 
-	local distvar = 64*14
+	local distvar = libfn.getDistVar()
 	local i
 	local pdis = 0
 	local useodds = 1
@@ -1265,8 +1301,6 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	local distlen = 0
 	
 	local FAUXPOS = G_BattleGametype() and 2 or 10
-	
-	local libfn = xItemLib.func
 	
 	--make faux positions valid or not
 	for i = 1, FAUXPOS do
@@ -1863,41 +1897,64 @@ local colormode = TC_RAINBOW
 local localcolor = SKINCOLOR_NONE
 
 local function xItem_FindHudFlags(v, p, c)
-    if splitscreen < 2 then -- don't change shit for THIS splitscreen.
-        local ITEM_Y_OFF = ITEM_Y
-        if splitscreen == 1 then ITEM_Y_OFF = 3 end -- Apply insignificantly small offset for 2P splitscreen.
-        
-        if c.pnum == 1 then
-            return ITEM_X, ITEM_Y_OFF, V_SNAPTOTOP|V_SNAPTOLEFT, false
-        else
-            return ITEM_X, ITEM_Y_OFF, V_SNAPTOLEFT|V_SPLITSCREEN, false
-        end
-    else -- now we're having a fun game.
-        if c.pnum == 1 or c.pnum == 3 then -- If we are P1 or P3...
-            return ITEM1_X, ITEM1_Y, (c.pnum == 3 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTOLEFT, false    -- flip P3 to the bottom.    
-        else -- else, that means we're P2 or P4.
-            return ITEM2_X, ITEM2_Y, (c.pnum == 4 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTORIGHT, true
-        end
-    end
+	if (def_saturn or def_neptune) then
+		local x, y, fflags = v.getDrawInfo("item")
+		if splitscreen < 2 then -- don't change shit for THIS splitscreen.
+			return x, y, fflags, false
+		else -- now we're having a fun game.
+			if c.pnum == 1 or c.pnum == 3 then -- If we are P1 or P3...
+				return x, y, fflags, false   -- flip P3 to the bottom.    
+			else -- else, that means we're P2 or P4.
+				return x, y, fflags, true
+			end
+		end
+	else
+		if splitscreen < 2 then -- don't change shit for THIS splitscreen.
+			local ITEM_Y_OFF = ITEM_Y
+			if splitscreen == 1 then ITEM_Y_OFF = 3 end -- Apply insignificantly small offset for 2P splitscreen.
+			
+			if c.pnum == 1 then
+				return ITEM_X, ITEM_Y_OFF, V_SNAPTOTOP|V_SNAPTOLEFT, false
+			else
+				return ITEM_X, ITEM_Y_OFF, V_SNAPTOLEFT|V_SPLITSCREEN, false
+			end
+		else -- now we're having a fun game.
+			if c.pnum == 1 or c.pnum == 3 then -- If we are P1 or P3...
+				return ITEM1_X, ITEM1_Y, (c.pnum == 3 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTOLEFT, false    -- flip P3 to the bottom.    
+			else -- else, that means we're P2 or P4.
+				return ITEM2_X, ITEM2_Y, (c.pnum == 4 and V_SPLITSCREEN or V_SNAPTOTOP)|V_SNAPTORIGHT, true
+			end
+		end
+	end
 end
 
 local function xItem_DrawItemBox(v, p, c, fill)
 	fill = $ or false
 	local fx, fy, fflags = xItemLib.func.hudFindFlags(v, p, c)
-	local localbg = {v.cachePatch("K_ITBG"), v.cachePatch("K_ISBG")}
+	local localbg
+	local colourmap = nil
+	if (def_saturn or def_neptune) then
+		local bg, cmap = v.getColorHudPatch("item")
+		localbg = {bg, v.getColorHudPatch("item", true)}
+		if (v.useColorHud())
+			colourmap = v.getColormap(TC_DEFAULT, v.getHudColor())
+		end
+	else
+		localbg = {v.cachePatch("K_ITBG"), v.cachePatch("K_ISBG")}
+	end
 
 	if splitscreen < 2 then -- don't change shit for THIS splitscreen.
 		if fill then
 			local rectTopX, rectTopY, rectSize = 10, 10, 30
 			v.drawFill(fx + rectTopX, fy + rectTopY, rectSize, rectSize, 25|fflags)
 		end
-		v.draw(fx, fy, localbg[1], V_HUDTRANS|fflags)
+		v.draw(fx, fy, localbg[1], V_HUDTRANS|fflags, colourmap)
 	else -- now we're having a fun game.
 		if fill then
 			local rectTopX, rectTopY, rectSize = 16, 15, 16
 			v.drawFill(fx + rectTopX, fy + rectTopY, rectSize, rectSize, 25|fflags)
 		end
-		v.draw(fx, fy, localbg[2], V_HUDTRANS|fflags)
+		v.draw(fx, fy, localbg[2], V_HUDTRANS|fflags, colourmap)
 	end
 end
 
@@ -1996,7 +2053,13 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox)
 	local get
 	
 	local kp_itemx = v.cachePatch("K_ITX")
-	local localmul = {v.cachePatch("K_ITMUL"), v.cachePatch("K_ISMUL")}
+	local localmul
+	if (def_saturn or def_neptune) then
+		localmul = {v.getColorHudPatch("itemmul"), v.getColorHudPatch("itemmul", true)}
+	else
+		localmul = {v.cachePatch("K_ITMUL"), v.cachePatch("K_ISMUL")}
+	end
+
 	local kp_itemtimer = {v.cachePatch("K_ITIMER"), v.cachePatch("K_ISIMER")}
 	
 	local rouletteAnim = false
@@ -2068,7 +2131,11 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox)
 	
 	--fuck me
 	if kartstuff[k_itemamount] > 1 and drawAmt then
-		v.draw(fx + (flipamount and 48 or 0), fy, localmul[offset], V_HUDTRANS|fflags|(flipamount and V_FLIP or 0))
+		local colourmap = nil
+		if (def_saturn or def_neptune) then
+			colourmap = v.getColormap(TC_DEFAULT, v.getHudColor())
+		end
+		v.draw(fx + (flipamount and 48 or 0), fy, localmul[offset], V_HUDTRANS|fflags|(flipamount and V_FLIP or 0), colourmap)
 		if (blink and leveltime % blink == 0) or (not blink) and blink ~= -1 then
 			v.draw(fx, fy, icn, itTflags|fflags, colour)
 		end
@@ -2399,6 +2466,12 @@ end
 local function listItem(p, cv)
 	CONS_Printf(p, "\n\3\135xItemLib\n\128by \130minenice\128")
 	CONS_Printf(p, "Library version \130"..currLibVer.." (revision "..currRevVer..")")
+	if (def_saturn) then
+		print("Saturn featureset enabled.")
+	end
+	if (def_neptune) then
+		print("Neptune featureset enabled.")
+	end
 	
 	CONS_Printf(p, "\nNow listing all loaded xItems:\n----------------")
 	local idat
@@ -2495,6 +2568,13 @@ if not xItemLib then
 	print("\3\135xItemLib\n\128by \130minenice\128")
 	print("Initial xItemLib loading...")
 	print("Library version \130"..currLibVer.." (revision "..currRevVer..")")
+
+	if (def_saturn) then
+		print("Saturn featureset enabled.")
+	end
+	if (def_neptune) then
+		print("Neptune featureset enabled.")
+	end
 	
 	rawset(_G, "xItemLib", {
 		gLibVersion = currLibVer,
@@ -2547,6 +2627,7 @@ if not xItemLib then
 	xItemLib.func.getItemResult = xItem_GetItemResult
 	xItemLib.func.calculatePlayerDistance = calculatePlayerDistance
 	xItemLib.func.getOdds = xItem_GetOdds
+	xItemLib.func.getDistVar = getDistVar
 	xItemLib.func.setupDist = setupDistTable
 	xItemLib.func.findUseOdds = xItem_FindUseOdds
 	xItemLib.func.doRoulette = xItem_ItemRoulette
@@ -2663,9 +2744,17 @@ if not xItemLib then
 		possiblevalue = CV_Unsigned
 	})
 
+	xItemLib.cvars.iCustomDistVar = CV_RegisterVar({ -- custom dist var
+		name = "xitemdistvar",
+		defaultvalue = "896",
+		flags = CV_NETVAR,
+		possiblevalue = CV_Unsigned
+	})
+
 	local function spbOdds(newodds, pos, mashed, rush, p, secondist, pingame, pexiting)
 		local nod = newodds
-		local distvar = 64*14
+		
+		local distvar = xItemLib.func.getDistVar()
 		if ((indirectitemcooldown > 0) or (pexiting > 0) or (secondist/distvar < 3)) and (pos ~= 10) then -- Force SPB
 			nod = 0
 		else
@@ -2698,6 +2787,10 @@ if not xItemLib then
 		K_SetHyudoroCooldown(5*TICRATE)
 	end
 	
+	local function getDualShoe(p, i)
+		return xItemLib.xItemNamespaces["KITEM_SNEAKER"], 2
+	end
+
 	local function getTripleShoe(p, i)
 		return xItemLib.xItemNamespaces["KITEM_SNEAKER"], 3
 	end
@@ -2763,9 +2856,6 @@ if not xItemLib then
 	
 	addHook("MobjThinker", function(mo) xItemLib.func.vanillaArrowThinker(mo) end, MT_PLAYERARROW)
 
-	if (def_superring)
-		xItemLib.func.addItem{"KITEM_SUPERRING", "Super Rings", "K_ITRING", "K_ISRING", vanillaItemProps["KITEM_SUPERRING"].flags, vanillaItemProps["KITEM_SUPERRING"].raceodds, vanillaItemProps["KITEM_SUPERRING"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, T}}, true, nil, nil}
-	end
 	xItemLib.func.addItem{"KITEM_SNEAKER", "Sneaker", "K_ITSHOE", "K_ISSHOE", vanillaItemProps["KITEM_SNEAKER"].flags, vanillaItemProps["KITEM_SNEAKER"].raceodds, vanillaItemProps["KITEM_SNEAKER"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 1}}, true, nil, nil}
 	xItemLib.func.addItem{"KITEM_ROCKETSNEAKER", "Rocket Sneaker", "K_ITRSHE", "K_ISRSHE", vanillaItemProps["KITEM_ROCKETSNEAKER"].flags, vanillaItemProps["KITEM_ROCKETSNEAKER"].raceodds, vanillaItemProps["KITEM_ROCKETSNEAKER"].battleodds, nil, nil, nil, nil, nil, {0, {SPR_ITEM, 2}}, true, nil, nil}
 	xItemLib.func.addItem{"KITEM_INVINCIBILITY", "Invincibility", {3, "K_ITINV1", "K_ITINV2", "K_ITINV3", "K_ITINV4", "K_ITINV5", "K_ITINV6", "K_ITINV7"}, {3, "K_ISINV1", "K_ISINV2", "K_ISINV3", "K_ISINV4", "K_ISINV5", "K_ISINV6"}, vanillaItemProps["KITEM_INVINCIBILITY"].flags,vanillaItemProps["KITEM_INVINCIBILITY"].raceodds, vanillaItemProps["KITEM_INVINCIBILITY"].battleodds, nil, nil, nil, nil, nil, {3, {SPR_ITMI, A}, {SPR_ITMI, B}, {SPR_ITMI, C}, {SPR_ITMI, D}, {SPR_ITMI, E}, {SPR_ITMI, F}, {SPR_ITMI, G}}, true, nil, nil}
@@ -2782,12 +2872,14 @@ if not xItemLib then
 	xItemLib.func.addItem{"KITEM_HYUDORO", "Hyudoro", "K_ITHYUD", "K_ISHYUD", vanillaItemProps["KITEM_HYUDORO"].flags, vanillaItemProps["KITEM_HYUDORO"].raceodds, vanillaItemProps["KITEM_HYUDORO"].battleodds, getHyuu, nil, nil, hyuuOdds, nil,  {0, {SPR_ITEM, 14}}, true, nil, nil}
 	xItemLib.func.addItem{"KITEM_POGOSPRING", "Pogo Spring", "K_ITPOGO", "K_ISPOGO", vanillaItemProps["KITEM_POGOSPRING"].flags, vanillaItemProps["KITEM_POGOSPRING"].raceodds, vanillaItemProps["KITEM_POGOSPRING"].battleodds, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 15}}, showPogo, nil, nil} --what if I throw in a sneaky pogo lmao
 	xItemLib.func.addItem{"KITEM_KITCHENSINK", "Kitchen Sink", "K_ITSINK", "K_ISSINK", vanillaItemProps["KITEM_KITCHENSINK"].flags, vanillaItemProps["KITEM_KITCHENSINK"].raceodds, vanillaItemProps["KITEM_KITCHENSINK"].battleodds, nil, nil, nil, nil, nil,  {0, {SPR_ITEM, 16}}, false, nil, nil}
+
 	xItemLib.func.addItem{"KRITEM_TRIPLESNEAKER", "Triple Sneaker", "K_ITSHOE", "K_ISSHOE", vanillaItemProps["KRITEM_TRIPLESNEAKER"].flags, vanillaItemProps["KRITEM_TRIPLESNEAKER"].raceodds, vanillaItemProps["KRITEM_TRIPLESNEAKER"].battleodds, nil, nil, nil, nil, getTripleShoe,  {0, {SPR_ITEM, 1}}, false, nil, nil}
 	xItemLib.func.addItem{"KRITEM_TRIPLEBANANA", "Triple Banana", "K_ITBANA", "K_ISBANA", vanillaItemProps["KRITEM_TRIPLEBANANA"].flags, vanillaItemProps["KRITEM_TRIPLEBANANA"].raceodds, vanillaItemProps["KRITEM_TRIPLEBANANA"].battleodds, nil, nil, nil, nil, getTripleBanana, {0, {SPR_ITEM, 4}}, false, nil, nil}
 	xItemLib.func.addItem{"KRITEM_TENFOLDBANANA", "Deca Banana", "K_ITBANA", "K_ISBANA", vanillaItemProps["KRITEM_TENFOLDBANANA"].flags, vanillaItemProps["KRITEM_TENFOLDBANANA"].raceodds, vanillaItemProps["KRITEM_TENFOLDBANANA"].battleodds, nil, nil, nil, nil, getDecaBanana, {0, {SPR_ITEM, 5}}, false, nil, nil}
 	xItemLib.func.addItem{"KRITEM_TRIPLEORBINAUT", "Triple Orbinaut", "K_ITORB3", "K_ISORBN", vanillaItemProps["KRITEM_TRIPLEORBINAUT"].flags, vanillaItemProps["KRITEM_TRIPLEORBINAUT"].raceodds, vanillaItemProps["KRITEM_TRIPLEORBINAUT"].battleodds, nil, nil, nil, nil, getTripleOrbi, {0, {SPR_ITMO, C}}, false, nil, nil}
 	xItemLib.func.addItem{"KRITEM_QUADORBINAUT", "Quad Orbinaut", "K_ITORB4", "K_ISORBN", vanillaItemProps["KRITEM_QUADORBINAUT"].flags, vanillaItemProps["KRITEM_QUADORBINAUT"].raceodds, vanillaItemProps["KRITEM_QUADORBINAUT"].battleodds, nil, nil, nil, nil, getQuadOrbi, {0, {SPR_ITMO, D}}, false, nil, nil}
 	xItemLib.func.addItem{"KRITEM_DUALJAWZ", "Dual Jawz", "K_ITJAWZ", "K_ISJAWZ", vanillaItemProps["KRITEM_DUALJAWZ"].flags, vanillaItemProps["KRITEM_DUALJAWZ"].raceodds, vanillaItemProps["KRITEM_DUALJAWZ"].battleodds, nil, nil, nil, nil, getDualJawz, {0, {SPR_ITEM, 7}}, false, nil, nil}
+
 	xItemLib.func.addXItemMod("XITEM_CORE", "xItemLib", {lib = "by minenice"})
 	
 	addHook("NetVars", function(net)
@@ -2821,6 +2913,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	xItemLib.func.getItemResult = xItem_GetItemResult
 	xItemLib.func.calculatePlayerDistance = calculatePlayerDistance
 	xItemLib.func.getOdds = xItem_GetOdds
+	xItemLib.func.getDistVar = getDistVar
 	xItemLib.func.setupDist = setupDistTable
 	xItemLib.func.findUseOdds = xItem_FindUseOdds
 	xItemLib.func.doRoulette = xItem_ItemRoulette
@@ -2927,6 +3020,15 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 			name = "xitemsmugglerbonusmodifier",
 			defaultvalue = "1.2",
 			flags = CV_NETVAR|CV_FLOAT,
+			possiblevalue = CV_Unsigned
+		})
+	end
+
+	if (xItemLib.gLibVersion < 121) then
+		xItemLib.cvars.iCustomDistVar = CV_RegisterVar({ -- custom dist var
+			name = "xitemdistvar",
+			defaultvalue = "896",
+			flags = CV_NETVAR,
 			possiblevalue = CV_Unsigned
 		})
 	end
