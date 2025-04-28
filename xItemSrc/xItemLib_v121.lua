@@ -64,8 +64,6 @@ vanillaItemProps["KRITEM_TRIPLEORBINAUT"]   = {raceodds =  { 0, 0, 0, 1, 0, 0, 0
 vanillaItemProps["KRITEM_QUADORBINAUT"]     = {raceodds =  { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, battleodds = { 1, 1 }, name = "Quad Orbinaut", flags = XIF_POWERITEM                                                  }
 vanillaItemProps["KRITEM_DUALJAWZ"]         = {raceodds =  { 0, 0, 0, 1, 2, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Dual Jawz", flags = XIF_POWERITEM                                                      }
 
-local XBT_ATTACKDISABLED = 1<<7
-
 --apparently this makes shit faster? wtf?
 local TICRATE = TICRATE
 local FRACUNIT = FRACUNIT
@@ -1496,12 +1494,12 @@ local function xItem_ItemRoulette(p, cmd)
 		fillLocalAvailableItems(p, useodds, 0, spbrush)
 	end
 	
-	if libfn.canUseItem(p, true, true) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and xItemLib.toggles.debugItem and xItemLib.cvars.bXRig.value then
+	if libfn.canUseItem(p, true, true) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & xItemLib.XBT_ATTACKDISABLED)) and xItemLib.toggles.debugItem and xItemLib.cvars.bXRig.value then
 		kartstuff[k_itemroulette] = roulettetime
 		dat.xItem_roulette = roulettetime
 	end
 
-	if (xItemLib.cvars.bEnableMashing.value and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and not (kartstuff[k_eggmanheld] or kartstuff[k_itemheld]) and dat.xItem_roulette >= roulettestop and not modeattacking) then
+	if (xItemLib.cvars.bEnableMashing.value and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & xItemLib.XBT_ATTACKDISABLED)) and not (kartstuff[k_eggmanheld] or kartstuff[k_itemheld]) and dat.xItem_roulette >= roulettestop and not modeattacking) then
 		-- Mashing reduces your chances for the good items
 		mashed = FixedDiv(dat.xItem_roulette*FRACUNIT, (roulettetime+roulettestop)*FRACUNIT) - FRACUNIT
 	elseif (not(dat.xItem_roulette >= roulettetime)) then
@@ -1726,7 +1724,7 @@ local function playerCmdHook(p, cmd)
 
 	if p.xItemData and p.xItemData.xItem_itemSlotLockedTimer then
 		if cmd.buttons & BT_ATTACK then
-			cmd.buttons = ($|XBT_ATTACKDISABLED) & ~BT_ATTACK
+			cmd.buttons = ($|xItemLib.XBT_ATTACKDISABLED) & ~BT_ATTACK
 		end
 	end
 end
@@ -1792,9 +1790,9 @@ local function xItem_BasicItemHandler(p, cmd)
 	local itdat = libfunc.getItemDataById(item)
 	local canUseItem = libfunc.canUseItem
 	
-	local attackJustDown = (((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and dat.xItem_pressedUse == 0)
-	local attackDown = ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED))
-	local attackReleased = ((dat.xItem_pressedUse) and not ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)))
+	local attackJustDown = (((cmd.buttons & BT_ATTACK) or (cmd.buttons & xItemLib.XBT_ATTACKDISABLED)) and dat.xItem_pressedUse == 0)
+	local attackDown = ((cmd.buttons & BT_ATTACK) or (cmd.buttons & xItemLib.XBT_ATTACKDISABLED))
+	local attackReleased = ((dat.xItem_pressedUse) and not ((cmd.buttons & BT_ATTACK) or (cmd.buttons & xItemLib.XBT_ATTACKDISABLED)))
 	local noHyudoro = (p.kartstuff[k_stolentimer] == 0 and p.kartstuff[k_stealingtimer] == 0)
 	
 	local status, err
@@ -2119,6 +2117,7 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox, rouletteshift)
 
 	disableBox = $ or false
 	rouletteshift = $ or 0
+
 	local fx, fy, fflags, flipamount = xItemLib.func.hudFindFlags(v, p, c)
 	local itTflags = V_HUDTRANS
 	local offset = ((splitscreen > 1) and 2 or 1)
@@ -2233,7 +2232,9 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox, rouletteshift)
 	end
 
 	--timer bar
-	libfn.xItem_DrawTimerBar(v, p, c)
+	if not rouletteshift then
+		libfn.xItem_DrawTimerBar(v, p, c)
+	end
 
 	if not disableBox then
 		libfn.hudDrawItemCooldown(v, p, c)
@@ -2652,7 +2653,9 @@ if not xItemLib then
 
 		--not netsynched
 		localAvailableItems = availableItems,
-		splitplayers = {}
+		splitplayers = {},
+
+		XBT_ATTACKDISABLED = 1<<12,
 	})
 
 	rawset(_G, "K_FlipFromObject", K_FlipFromObject)
@@ -3095,6 +3098,8 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	end
 
 	if (xItemLib.gLibVersion < 121) then
+		xItemLib.XBT_ATTACKDISABLED = 1<<12
+
 		xItemLib.cvars.bEnableMashing = CV_RegisterVar({ -- allow mashing
 			name = "xitemmashing",
 			defaultvalue = "Yes",
