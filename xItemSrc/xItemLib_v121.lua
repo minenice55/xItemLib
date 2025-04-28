@@ -1706,8 +1706,17 @@ local function xItem_handleDistributionDebugger(pa)
 	end
 end
 
-local function canUseItem(p)
-	return (p and p.mo and p.mo.health > 0 and (not p.spectator) and (not p.exiting)
+local function canUseItem(p, strict, nohyudoro)
+	if not p then return false end
+	if strict then
+		if p.kartstuff[k_growshrinktimer] > 0 or p.kartstuff[k_rocketsneakertimer]
+			or p.kartstuff[k_eggmanexplode] > 0 or p.kartstuff[k_itemheld] then return false end
+	end
+	if nohyudoro then
+		if p.kartstuff[k_stolentimer] > 0 or p.kartstuff[k_stealingtimer] > 0 then return false end
+	end
+
+	return (p.mo and p.mo.health > 0 and (not p.spectator) and (not p.exiting)
 		and p.kartstuff[k_spinouttimer] == 0 and p.kartstuff[k_squishedtimer] == 0 and p.kartstuff[k_respawn] == 0
 		and not(p.xItemData.xItem_attackedDuringRoll or p.xItemData.xItem_itemSlotLockedTimer))
 end
