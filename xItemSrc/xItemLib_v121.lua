@@ -2615,10 +2615,10 @@ if not xItemLib then
 	print("Library version \130"..currLibVer.." (revision "..currRevVer..")")
 
 	if (def_saturn) then
-		print("Saturn featureset enabled.")
+		print("\130Saturn\128 featureset enabled.")
 	end
 	if (def_neptune) then
-		print("Neptune featureset enabled.")
+		print("\130Neptune\128 featureset enabled.")
 	end
 	
 	rawset(_G, "xItemLib", {
@@ -2655,7 +2655,19 @@ if not xItemLib then
 		localAvailableItems = availableItems,
 		splitplayers = {},
 
-		XBT_ATTACKDISABLED = 1<<12,
+		-- attack disabled by cooldown flag
+		XBT_ATTACKDISABLED = 1<<10,
+
+		--item flags
+		XIF_POWERITEM = 1, --is power item (affects final odds)
+		XIF_COOLDOWNONSTART = 2, --can't be obtained on start cooldown
+		XIF_UNIQUE = 4, --only one can exist in anyone's slot
+		XIF_LOCKONUSE = 8, --locks the item slot when the item is used, slot must be unlocked manually by setting player.xItemData.xItem_itemSlotLocked to false
+		XIF_COOLDOWNINDIRECT = 16, --checks if indirectitemcooldown is 0
+		XIF_COLPATCH2PLAYER = 32, --map hud patch colour to player prefcolor
+		XIF_ICONFORAMT = 64, --item icon and dropped item frame changes depending on the item amount (animation frames become amount frames)
+		XIF_SMUGGLECHECK = 128, --item contributes to the smuggle detection
+		XIF_NOTNEAREND = 256 --item should not appear at the end of a race
 	})
 
 	rawset(_G, "K_FlipFromObject", K_FlipFromObject)
