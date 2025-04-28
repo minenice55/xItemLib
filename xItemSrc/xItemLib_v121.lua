@@ -40,29 +40,29 @@ local lastpdis
 local vanillaItemProps = {}
 -- xItem useodds                                             1  2  3  4  5  6  7  8  9  10
 --                                                           A  B  C  D  E  F  G  H  I  J
-vanillaItemProps["KITEM_SNEAKER"]           = {raceodds =  {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Sneaker", flags = XIF_SMUGGLECHECK                                       }
-vanillaItemProps["KITEM_ROCKETSNEAKER"]     = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, battleodds = { 0, 0 }, name = "Rocket Sneaker", flags = XIF_POWERITEM|XIF_SMUGGLECHECK                         }
-vanillaItemProps["KITEM_INVINCIBILITY"]     = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, battleodds = { 2, 1 }, name = "Invincibility", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
-vanillaItemProps["KITEM_BANANA"]            = {raceodds =  { 0, 9, 4, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Banana", flags = nil                                                    }
-vanillaItemProps["KITEM_EGGMAN"]            = {raceodds =  { 0, 3, 2, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Eggman Monitor", flags = nil                                                    }
-vanillaItemProps["KITEM_ORBINAUT"]          = {raceodds =  { 0, 7, 6, 4, 2, 0, 0, 0, 0, 0 }, battleodds = { 8, 0 }, name = "Orbinaut", flags = XIF_ICONFORAMT                                         }
-vanillaItemProps["KITEM_JAWZ"]              = {raceodds =  { 0, 0, 3, 2, 1, 1, 0, 0, 0, 0 }, battleodds = { 8, 1 }, name = "Jawz", flags = XIF_POWERITEM                                          }
-vanillaItemProps["KITEM_MINE"]              = {raceodds =  { 0, 0, 2, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 4, 1 }, name = "Mine", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                      }
-vanillaItemProps["KITEM_BALLHOG"]           = {raceodds =  { 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Ballhog", flags = XIF_POWERITEM                                          }
-vanillaItemProps["KITEM_SPB"]               = {raceodds =  { 0, 0, 1, 2, 3, 4, 2, 2, 0,20 }, battleodds = { 0, 0 }, name = "Self-Propelled Bomb", flags = XIF_COOLDOWNINDIRECT                                   }
-vanillaItemProps["KITEM_GROW"]              = {raceodds =  { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, battleodds = { 2, 1 }, name = "Grow", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK     }
-vanillaItemProps["KITEM_SHRINK"]            = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 }, battleodds = { 0, 0 }, name = "Shrink", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_COOLDOWNINDIRECT }
-vanillaItemProps["KITEM_THUNDERSHIELD"]     = {raceodds =  { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, name = "Thunder Shield", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_UNIQUE           }
-vanillaItemProps["KITEM_HYUDORO"]           = {raceodds =  { 0, 0, 0, 0, 1, 2, 1, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Hyudoro", flags = XIF_COOLDOWNONSTART|XIF_UNIQUE                         }
-vanillaItemProps["KITEM_POGOSPRING"]        = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Pogo Spring", flags = nil                                                    }
-vanillaItemProps["KITEM_KITCHENSINK"]       = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, name = "Kitchen Sink", flags = nil                                                    }
+vanillaItemProps["KITEM_SNEAKER"]           = {raceodds =  {20, 0, 0, 4, 6, 7, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Sneaker", flags = XIF_SMUGGLECHECK                                                     }
+vanillaItemProps["KITEM_ROCKETSNEAKER"]     = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 5, 3, 0 }, battleodds = { 0, 0 }, name = "Rocket Sneaker", flags = XIF_POWERITEM|XIF_SMUGGLECHECK                                }
+vanillaItemProps["KITEM_INVINCIBILITY"]     = {raceodds =  { 0, 0, 0, 0, 0, 1, 4, 6,10, 0 }, battleodds = { 2, 1 }, name = "Invincibility", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK             }
+vanillaItemProps["KITEM_BANANA"]            = {raceodds =  { 0, 9, 4, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Banana", flags = XIF_NOTNEAREND                                                        }
+vanillaItemProps["KITEM_EGGMAN"]            = {raceodds =  { 0, 3, 2, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Eggman Monitor", flags = XIF_NOTNEAREND                                                }
+vanillaItemProps["KITEM_ORBINAUT"]          = {raceodds =  { 0, 7, 6, 4, 2, 0, 0, 0, 0, 0 }, battleodds = { 8, 0 }, name = "Orbinaut", flags = XIF_ICONFORAMT                                                      }
+vanillaItemProps["KITEM_JAWZ"]              = {raceodds =  { 0, 0, 3, 2, 1, 1, 0, 0, 0, 0 }, battleodds = { 8, 1 }, name = "Jawz", flags = XIF_POWERITEM                                                           }
+vanillaItemProps["KITEM_MINE"]              = {raceodds =  { 0, 0, 2, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 4, 1 }, name = "Mine", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART                                       }
+vanillaItemProps["KITEM_BALLHOG"]           = {raceodds =  { 0, 0, 0, 2, 1, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Ballhog", flags = XIF_POWERITEM                                                        }
+vanillaItemProps["KITEM_SPB"]               = {raceodds =  { 0, 0, 1, 2, 3, 4, 2, 2, 0,20 }, battleodds = { 0, 0 }, name = "Self-Propelled Bomb", flags = XIF_COOLDOWNINDIRECT|XIF_NOTNEAREND                      }
+vanillaItemProps["KITEM_GROW"]              = {raceodds =  { 0, 0, 0, 0, 0, 0, 2, 5, 7, 0 }, battleodds = { 2, 1 }, name = "Grow", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_SMUGGLECHECK                      }
+vanillaItemProps["KITEM_SHRINK"]            = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 2, 0, 0 }, battleodds = { 0, 0 }, name = "Shrink", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_COOLDOWNINDIRECT|XIF_NOTNEAREND }
+vanillaItemProps["KITEM_THUNDERSHIELD"]     = {raceodds =  { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, name = "Thunder Shield", flags = XIF_POWERITEM|XIF_COOLDOWNONSTART|XIF_UNIQUE                  }
+vanillaItemProps["KITEM_HYUDORO"]           = {raceodds =  { 0, 0, 0, 0, 1, 2, 1, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Hyudoro", flags = XIF_COOLDOWNONSTART|XIF_UNIQUE                                       }
+vanillaItemProps["KITEM_POGOSPRING"]        = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Pogo Spring", flags = nil                                                              }
+vanillaItemProps["KITEM_KITCHENSINK"]       = {raceodds =  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, battleodds = { 0, 0 }, name = "Kitchen Sink", flags = nil                                                             }
 
-vanillaItemProps["KRITEM_TRIPLESNEAKER"]    = {raceodds =  { 0, 0, 0, 0, 3, 7, 9, 2, 0, 0 }, battleodds = { 0, 1 }, name = "Triple Sneaker", flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_TRIPLEBANANA"]     = {raceodds =  { 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Triple Banana", flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_TENFOLDBANANA"]    = {raceodds =  { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 }, battleodds = { 0, 1 }, name = "Deca Banana", flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_TRIPLEORBINAUT"]   = {raceodds =  { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Triple Orbinaut", flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_QUADORBINAUT"]     = {raceodds =  { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, battleodds = { 1, 1 }, name = "Quad Orbinaut", flags = XIF_POWERITEM                                          }
-vanillaItemProps["KRITEM_DUALJAWZ"]         = {raceodds =  { 0, 0, 0, 1, 2, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Dual Jawz", flags = XIF_POWERITEM                                          }
+vanillaItemProps["KRITEM_TRIPLESNEAKER"]    = {raceodds =  { 0, 0, 0, 0, 3, 7, 9, 2, 0, 0 }, battleodds = { 0, 1 }, name = "Triple Sneaker", flags = XIF_POWERITEM                                                 }
+vanillaItemProps["KRITEM_TRIPLEBANANA"]     = {raceodds =  { 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 1, 0 }, name = "Triple Banana", flags = XIF_POWERITEM|XIF_NOTNEAREND                                   }
+vanillaItemProps["KRITEM_TENFOLDBANANA"]    = {raceodds =  { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 }, battleodds = { 0, 1 }, name = "Deca Banana", flags = XIF_POWERITEM|XIF_NOTNEAREND                                     }
+vanillaItemProps["KRITEM_TRIPLEORBINAUT"]   = {raceodds =  { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, battleodds = { 2, 0 }, name = "Triple Orbinaut", flags = XIF_POWERITEM                                                }
+vanillaItemProps["KRITEM_QUADORBINAUT"]     = {raceodds =  { 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 }, battleodds = { 1, 1 }, name = "Quad Orbinaut", flags = XIF_POWERITEM                                                  }
+vanillaItemProps["KRITEM_DUALJAWZ"]         = {raceodds =  { 0, 0, 0, 1, 2, 0, 0, 0, 0, 0 }, battleodds = { 2, 1 }, name = "Dual Jawz", flags = XIF_POWERITEM                                                      }
 
 local XBT_ATTACKDISABLED = 1<<7
 
@@ -713,7 +713,9 @@ local function floatingXItemSpecial(s, t)
 		end
 	end
 
-	S_StartSound(special, s.info.deathsound, p)
+	if findSplitPlayerNum(p)
+		S_StartSound(special, s.info.deathsound)
+	end
 
 	s.tracer = t
 	s.flags2 = $ | MF2_NIGHTSPULL
@@ -736,7 +738,7 @@ local function P_IsLocalPlayer(player)
 	if player == consoleplayer then
 		return true
 	elseif splitscreen then
-		for i = 1, splitscreen do -- Skip P1
+		for i = 0, splitscreen do
 			if player == displayplayers[i] then
 				return true
             end
@@ -1057,6 +1059,8 @@ if (def_neptune) then
 	}
 end
 local function xItem_GetOdds(pos, item, mashed, spbrush, p, custTable)
+	if item <= 0 then return 0 end
+
 	local newodds = 0
 	local pingame = 0
 	local pexiting = 0
@@ -1096,8 +1100,6 @@ local function xItem_GetOdds(pos, item, mashed, spbrush, p, custTable)
 	table.insert(itemenabled, libfn.getCVar("quadorbinaut"))
 	table.insert(itemenabled, libfn.getCVar("dualjawz"))
 	
-	if item <= 0 then return 0 end
-	
 	if (def_neptune) then
 		if libfn.getCVar("customodds") then
 			newodds = libfn.getCVar(string.format("%s%d", nepodds_cvarmap[item], pos))
@@ -1123,10 +1125,10 @@ local function xItem_GetOdds(pos, item, mashed, spbrush, p, custTable)
 			end
 		end
 	end
-	
+
 	--print("got odds "..newodds)
 	if newodds then newodds = $ << 2 end
-		
+
 	if item <= table.maxn(itemenabled) and not itemenabled[item] then newodds = 0 end
 	if not xItemLib.toggles.xItemToggles[item] then
 		newodds = 0
@@ -1302,6 +1304,8 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	
 	local FAUXPOS = G_BattleGametype() and 2 or 10
 	
+	pdis = libfn.calculatePlayerDistance(p, pingame)
+
 	--make faux positions valid or not
 	for i = 1, FAUXPOS do
 		local available = false
@@ -1313,8 +1317,6 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 		end
 		oddsvalid[i] = available
 	end
-	
-	pdis = libfn.calculatePlayerDistance(p, pingame)
 	
 	--set up distributions
 	if (G_BattleGametype()) then
@@ -1383,6 +1385,12 @@ local function xItem_FindUseOdds(p, mashed, pingame, spbrush, dontforcespb)
 	return useodds
 end
 
+local function fillLocalAvailableItems(p, useodds, mashed, spbrush)
+	if not p then return end
+	if not P_IsDisplayPlayer(p) then return end
+	availableItems[p.splitscreenindex + 1] = xItemLib.func.hudFindRouletteItems(p, useodds, mashed, spbrush)
+end
+
 local function xItem_ItemRoulette(p, cmd)
 	if not p then return end
 	if not p.xItemData then return end
@@ -1398,6 +1406,7 @@ local function xItem_ItemRoulette(p, cmd)
 	local mashed = 0
 	local dontforcespb = false
 	local spbrush = false
+	local roulettestart = false
 	
 	local kartstuff = p.kartstuff
 	
@@ -1416,7 +1425,8 @@ local function xItem_ItemRoulette(p, cmd)
 	if kartstuff[k_itemroulette] and dat.xItem_roulette == 0 then
 		dat.xItem_roulette = kartstuff[k_itemroulette]
 		kartstuff[k_itemroulette] = 4
-
+		
+		roulettestart = true
 		for i = 1, #xItemLib.xItemModNamespaces do
 			local fn = libfn.getXItemModValue(i, -1, "startitemroll")
 			if fn == nil or (not type(fn) == "function") then continue end
@@ -1466,8 +1476,12 @@ local function xItem_ItemRoulette(p, cmd)
 
 	
 	-- This makes the roulette produce the random noises.
-	if P_IsLocalPlayer(p) and dat.xItem_roulette % 3 == 1 and p.mo and p.mo.health then
-		S_StartSound(nil, sfx_itrol1 + ((dat.xItem_roulette / 3) % 8), p)
+	local animspeed = 3
+	if xItemLib.cvars.bRouletteAnim.value and xItemLib.cvars.iRouletteAnimSpeed.value > 0 then
+		animspeed = xItemLib.cvars.iRouletteAnimSpeed.value
+	end
+	if findSplitPlayerNum(p) and dat.xItem_roulette % animspeed == 1 and p.mo and p.mo.health then
+		S_StartSound(nil, sfx_itrol1 + ((dat.xItem_roulette / animspeed) % 8))
 	end
 	
 	roulettestop = TICRATE + (3*(pingame - kartstuff[k_position]))
@@ -1476,9 +1490,9 @@ local function xItem_ItemRoulette(p, cmd)
 	end
 	
 	local splitplaynum = p.splitscreenindex + 1
-	if P_IsLocalPlayer(p) and ((dat.xItem_roulette < 4) or (dat.xItem_roulette % 3 == 0)) then
+	if findSplitPlayerNum(p) and (dat.xItem_roulette % TICRATE/2 == 0 or roulettestart) then
 		useodds = libfn.findUseOdds(p, 0, pingame, spbrush, dontforcespb)
-		availableItems[splitplaynum] = libfn.hudFindRouletteItems(p, useodds, 0, spbrush)
+		fillLocalAvailableItems(p, useodds, 0, spbrush)
 	end
 	
 	if (p and p.mo and p.mo.health and not (p.spectator or p.exiting)) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and xItemLib.toggles.debugItem and xItemLib.cvars.bXRig.value then
@@ -1508,7 +1522,9 @@ local function xItem_ItemRoulette(p, cmd)
 	if (kartstuff[k_roulettetype] == 2) then
 		kartstuff[k_eggmanexplode] = max($, 4*TICRATE) --in case this runs after stuff like egg panic
 		
-		S_StartSound(nil, sfx_itrole, p)
+		if findSplitPlayerNum(p) then
+			S_StartSound(nil, sfx_itrole)
+		end
 		dat.xItem_itemSlotLocked = false --just in case
 		if dat.xItem_resetOddsNextRoll == 1 then
 			libfn.resetItemOdds(0, p)
@@ -1547,7 +1563,9 @@ local function xItem_ItemRoulette(p, cmd)
 		libfn.getItemResult(p, di, false)
 		kartstuff[k_itemamount] = xItemLib.cvars.dItemDebugAmt.value
 		
-		S_StartSound(nil, sfx_dbgsal, p)
+		if findSplitPlayerNum(p)
+			S_StartSound(nil, sfx_dbgsal)
+		end
 		if dat.xItem_resetOddsNextRoll == 1 then
 			libfn.resetItemOdds(0, p)
 			dat.xItem_resetOddsNextRoll = 0
@@ -1630,8 +1648,10 @@ local function xItem_ItemRoulette(p, cmd)
 		dat.xItem_resetOddsNextRoll = 0
 	end
 	
-	S_StartSound(nil, ((kartstuff[k_roulettetype] == 1) and sfx_itrolk or (mashed and sfx_itrolm or sfx_itrolf)), p)
-	
+	if findSplitPlayerNum(p) then
+		S_StartSound(nil, ((kartstuff[k_roulettetype] == 1) and sfx_itrolk or (mashed and sfx_itrolm or sfx_itrolf)))
+	end
+
 	kartstuff[k_itemblink] = TICRATE
 	kartstuff[k_itemblinkmode] = ((kartstuff[k_roulettetype] == 1) and 2 or (mashed and 1 or 0))
 	
@@ -2024,11 +2044,70 @@ local function xItem_DrawCooldownItemBox(v, p, c)
 	libfn.hudDrawItemCooldown(v, p, c)
 end
 
-local function xItem_DrawItem(v, p, c, i, blink, disableBox)
+local function xItem_DrawRoulette(v, p, c)
+	local libfn = xItemLib.func
+	local dat = p.xItemData
+	local av = availableItems[p.splitscreenindex + 1]
+
+	if (dat.xItem_roulette % TICRATE/2 == 0) and ((av == nil) or (table.getn(av) < 1)) then
+		local pingame = 0
+		local useodds = 0
+		local dontforcespb = false
+		local spbrush = false
+
+		for p in players.iterate do
+			if p.spectator then continue end
+			pingame = $+1
+			if (p.exiting) then
+				dontforcespb = true
+			end
+		end
+		if (pingame <= 2)
+			dontforcespb = true
+		end
+
+		if (G_RaceGametype())
+			spbrush = (spbplace ~= -1 and kartstuff[k_position] == spbplace+1)
+		end
+
+		useodds = libfn.findUseOdds(p, 0, pingame, spbrush, dontforcespb)
+		fillLocalAvailableItems(p, useodds, 0, spbrush)
+		av = availableItems[p.splitscreenindex + 1]
+	end
+
+	--print(splitnum(p))
+	if av and table.getn(av) then
+		local animLength = 3
+		local avlen = table.getn(av)
+		local icon = 1
+
+		libfn.hudDrawItemBox(v, p, c)
+
+		-- additional item icon if animation is active
+		if xItemLib.cvars.bRouletteAnim.value and xItemLib.cvars.iRouletteAnimSpeed.value > 0 then
+			animLength = xItemLib.cvars.iRouletteAnimSpeed.value
+			icon = ((dat.xItem_roulette + animLength)/animLength)
+			
+			libfn.hudDrawItem(v, p, c, av[((icon + 2 + avlen) % avlen) + 1], 0, true, -2)
+			libfn.hudDrawItem(v, p, c, av[((icon + 1 + avlen) % avlen) + 1], 0, true, -1)
+			libfn.hudDrawItem(v, p, c, av[((icon - 1 + avlen) % avlen) + 1], 0, true, 1)
+		else
+			icon = ((dat.xItem_roulette + animLength)/animLength)
+		end
+		
+		-- main item
+		libfn.hudDrawItem(v, p, c, av[((icon + avlen) % avlen) + 1], 0, true, 0)
+		
+		libfn.hudDrawItemCooldown(v, p, c)
+	end
+end
+
+local function xItem_DrawItem(v, p, c, i, blink, disableBox, rouletteshift)
 	if not p then return end
 	if not p.xItemData then return end
 
 	disableBox = $ or false
+	rouletteshift = $ or 0
 	local fx, fy, fflags, flipamount = xItemLib.func.hudFindFlags(v, p, c)
 	local itTflags = V_HUDTRANS
 	local offset = ((splitscreen > 1) and 2 or 1)
@@ -2044,7 +2123,7 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox)
 
 	local kp_itemtimer = {v.cachePatch("K_ITIMER"), v.cachePatch("K_ISIMER")}
 	
-	local rouletteAnim = false
+	local rouletteAnim = 0
 	local libfn = xItemLib.func
 	
 	local kartstuff = p.kartstuff
@@ -2075,8 +2154,8 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox)
 		colormode = TC_RAINBOW
 		localcolor = p.skincolor or SKINCOLOR_GREY
 		colour = v.getColormap(colormode, localcolor)
-		if xItemLib.cvars.bRouletteAnim.value then
-			rouletteAnim = true
+		if xItemLib.cvars.bRouletteAnim.value and xItemLib.cvars.iRouletteAnimSpeed.value > 0 then
+			rouletteAnim = xItemLib.cvars.iRouletteAnimSpeed.value
 		end
 	end
 	
@@ -2096,17 +2175,20 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox)
 		libfn.hudDrawItemBox(v, p, c)
 	end
 	
-	local yShift = ((leveltime%3)-1)
-	if splitscreen < 2 then 
-		if rouletteAnim then
-			fy = $ + 10*yShift
-			if yShift then itTflags = V_HUDTRANSHALF end
+	local itemy = fy * FRACUNIT
+	if rouletteAnim then
+		local yShift = (FRACUNIT * rouletteshift) + (FixedDiv(p.xItemData.xItem_roulette, rouletteAnim) % FRACUNIT)
+		local alpha = (abs(yShift) * 10)/FRACUNIT
+		if alpha >= 10 then return end
+
+		if splitscreen < 2 then 
+			itemy = $ + 32*yShift
+		else 
+			itemy = $ + 16*yShift
 		end
-	else 
-		if rouletteAnim then
-			fy = $ + 4*yShift
-			if yShift then itTflags = V_HUDTRANSHALF end
-		end
+		local hudtrans = libfn.getCVar("translucenthud")
+		alpha = min(max(0, alpha), hudtrans)
+		itTflags = alpha<<V_ALPHASHIFT
 	end
 
 	local drawAmt = (not (itdat.flags and (itdat.flags & XIF_ICONFORAMT))) or (itdat.flags and (itdat.flags & XIF_ICONFORAMT) and kartstuff[k_itemamount] > get)
@@ -2119,7 +2201,7 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox)
 		end
 		v.draw(fx + (flipamount and 48 or 0), fy, localmul[offset], V_HUDTRANS|fflags|(flipamount and V_FLIP or 0), colourmap)
 		if (blink and leveltime % blink == 0) or (not blink) and blink ~= -1 then
-			v.draw(fx, fy, icn, itTflags|fflags, colour)
+			v.drawScaled(fx * FRACUNIT, itemy, FRACUNIT, icn, itTflags|fflags, colour)
 		end
 		if offset == 2 then
 			if flipamount then	-- reminder that this is for 3/4p's right end of the screen.
@@ -2133,7 +2215,7 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox)
 		end
 	else
 		if (blink and leveltime % blink == 0) or (not blink) and blink ~= -1 then
-			v.draw(fx, fy, icn, itTflags|fflags, colour)
+			v.drawScaled(fx * FRACUNIT, itemy, FRACUNIT, icn, itTflags|fflags, colour)
 		end
 	end
 
@@ -2248,6 +2330,14 @@ local function findAvailableRoulettePatches(p, useodds, spbrush)
 	for i = 1, libfn.countItems() do
 		local dat = libfn.getItemDataById(i).showInRoulette
 		if not dat then continue end
+
+		--CTGP-7 roulette
+		if cv.bEnhancedRoulette.value and useodds then
+			if libfn.getOdds(useodds, i, 0, spbrush, p) <= 0 then
+				continue
+			end
+		end
+
 		if type(dat) == "function" then
 			if dat(p) then
 				table.insert(available, i)
@@ -2259,17 +2349,6 @@ local function findAvailableRoulettePatches(p, useodds, spbrush)
 		end
 	end
 	
-	--CTGP-7 roulette
-	if cv.bEnhancedRoulette.value and useodds then
-		local eav = {}
-		for j = 1, #available do
-			if libfn.getOdds(useodds, available[j], 0, spbrush, p) > 0 then
-				table.insert(eav, available[j])
-				continue
-			end
-		end
-		available = eav
-	end
 	return available
 end
 
@@ -2325,37 +2404,7 @@ local function xItem_hudMain(v, p, c)
 				end
 			--draw the roulette
 			elseif dat.xItem_roulette then
-				local av = availableItems[p.splitscreenindex + 1]
-
-				if (leveltime % 4 == 0) and not (av and table.maxn(av)) then
-					local pingame = 0
-					local useodds = 0
-					local dontforcespb = false
-					local spbrush = false
-
-					for p in players.iterate do
-						if p.spectator then continue end
-						pingame = $+1
-						if (p.exiting) then
-							dontforcespb = true
-						end
-					end
-					if (pingame <= 2)
-						dontforcespb = true
-					end
-
-					if (G_RaceGametype())
-						spbrush = (spbplace ~= -1 and kartstuff[k_position] == spbplace+1)
-					end
-
-					useodds = libfn.findUseOdds(p, 0, pingame, spbrush, dontforcespb)
-					av = libfn.hudFindRouletteItems(p, useodds, 0, spbrush)
-				end
-
-				--print(splitnum(p))
-				if av and table.maxn(av) then
-					libfn.hudDrawItem(v, p, c, av[((dat.xItem_roulette/3) % table.maxn(av)) + 1])
-				end
+				libfn.hudDrawRoulette(v, p, c)
 			--draw the held item
 			elseif kartstuff[k_itemtype] then
 				--custom item hud drawer here (this only runs when the item is still in the slot, if special timers are involved like above the mod should handle that by itself)
@@ -2622,6 +2671,7 @@ if not xItemLib then
 	xItemLib.func.hudDrawSad = xItem_drawSad
 	xItemLib.func.hudDrawItemCooldown = xItem_DrawItemMinecraftCooldown
 	xItemLib.func.hudDrawItemCooldownBox = xItem_DrawCooldownItemBox
+	xItemLib.func.hudDrawRoulette = xItem_DrawRoulette
 	xItemLib.func.hudMain = xItem_hudMain
 	xItemLib.func.playerThinker = playerThinkFrame
 	xItemLib.func.hudFindRouletteItems = findAvailableRoulettePatches
@@ -2667,22 +2717,26 @@ if not xItemLib then
 		flags = CV_NETVAR,
 		possiblevalue = CV_Natural
 	})
+
 	xItemLib.cvars.bXRig = CV_RegisterVar({ --rig 2
 		name = "xitemdebugrig",
 		defaultvalue = "Yes",
 		flags = CV_NETVAR,
 		possiblevalue = CV_YesNo
 	})
+
 	xItemLib.cvars.bEnhancedRoulette = CV_RegisterVar({ --enables the CTGP-7 style enhanced roulette
 		name = "xitemroulette",
 		defaultvalue = "No",
 		possiblevalue = CV_YesNo
 	})
+
 	xItemLib.cvars.bRouletteAnim = CV_RegisterVar({ --enables the fancy roulette animation
 		name = "xitemrouletteanim",
 		defaultvalue = "No",
 		possiblevalue = CV_YesNo
 	})
+
 	xItemLib.cvars.bItemDebugDistrib = CV_RegisterVar({ --distribution debugger
 		name = "xitemdebugdistributions",
 		defaultvalue = "No",
@@ -2718,7 +2772,7 @@ if not xItemLib then
 		flags = CV_NETVAR,
 		possiblevalue = CV_YesNo
 	})
-
+	
 	xItemLib.cvars.fSmugglerBonusModifier = CV_RegisterVar({ -- smuggler bonus modifier
 		name = "xitemsmugglerbonusmodifier",
 		defaultvalue = "1.2",
@@ -2730,6 +2784,12 @@ if not xItemLib then
 		name = "xitemdistvar",
 		defaultvalue = "896",
 		flags = CV_NETVAR,
+		possiblevalue = CV_Unsigned
+	})
+
+	xItemLib.cvars.iRouletteAnimSpeed = CV_RegisterVar({ -- roulette animation speed
+		name = "xitemrouletteanimspeed",
+		defaultvalue = "5",
 		possiblevalue = CV_Unsigned
 	})
 
@@ -2926,6 +2986,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	xItemLib.func.xItem_setPlayerItemCooldown = setPlayerItemCooldown
 	xItemLib.func.hudDrawItemCooldown = xItem_DrawItemMinecraftCooldown
 	xItemLib.func.hudDrawItemCooldownBox = xItem_DrawCooldownItemBox
+	xItemLib.func.hudDrawRoulette = xItem_DrawRoulette
 	xItemLib.func.playerCmdHook = playerCmdHook
 	xItemLib.func.playerSpawn = playerSpawn
 	xItemLib.func.mapChange = mapChange
@@ -3011,6 +3072,12 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 			name = "xitemdistvar",
 			defaultvalue = "896",
 			flags = CV_NETVAR,
+			possiblevalue = CV_Unsigned
+		})
+
+		xItemLib.cvars.iRouletteAnimSpeed = CV_RegisterVar({ -- roulette animation speed
+			name = "xitemrouletteanimspeed",
+			defaultvalue = "5",
 			possiblevalue = CV_Unsigned
 		})
 	end
