@@ -1387,7 +1387,7 @@ end
 
 local function fillLocalAvailableItems(p, useodds, mashed, spbrush)
 	if not p then return end
-	if not P_IsDisplayPlayer(p) then return end
+	if not findSplitPlayerNum(p) then return end
 	availableItems[p.splitscreenindex + 1] = xItemLib.func.hudFindRouletteItems(p, useodds, mashed, spbrush)
 end
 
@@ -1484,7 +1484,8 @@ local function xItem_ItemRoulette(p, cmd)
 		S_StartSound(nil, sfx_itrol1 + ((dat.xItem_roulette / animspeed) % 8))
 	end
 	
-	roulettestop = TICRATE + (3*(pingame - kartstuff[k_position]))
+	local roulettetime = xItemLib.cvars.iRouletteTime.value
+	roulettestop = TICRATE + ((roulettetime/TICRATE) * (pingame - kartstuff[k_position]))
 	if (G_RaceGametype())
 		spbrush = (spbplace ~= -1 and kartstuff[k_position] == spbplace+1)
 	end
@@ -1496,13 +1497,14 @@ local function xItem_ItemRoulette(p, cmd)
 	end
 	
 	if (p and p.mo and p.mo.health and not (p.spectator or p.exiting)) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and xItemLib.toggles.debugItem and xItemLib.cvars.bXRig.value then
-		kartstuff[k_itemroulette] = TICRATE*3
-		dat.xItem_roulette = TICRATE*3
+		kartstuff[k_itemroulette] = roulettetime
+		dat.xItem_roulette = roulettetime
 	end
-	if (((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and not (kartstuff[k_eggmanheld] or kartstuff[k_itemheld]) and dat.xItem_roulette >= roulettestop and not modeattacking) then
+
+	if (xItemLib.cvars.bEnableMashing.value and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and not (kartstuff[k_eggmanheld] or kartstuff[k_itemheld]) and dat.xItem_roulette >= roulettestop and not modeattacking) then
 		-- Mashing reduces your chances for the good items
-		mashed = FixedDiv(dat.xItem_roulette*FRACUNIT, ((TICRATE*3)+roulettestop)*FRACUNIT) - FRACUNIT
-	elseif (not(dat.xItem_roulette >= (TICRATE*3))) then
+		mashed = FixedDiv(dat.xItem_roulette*FRACUNIT, (roulettetime+roulettestop)*FRACUNIT) - FRACUNIT
+	elseif (not(dat.xItem_roulette >= roulettetime)) then
 		i = nil
 		pingame = nil
 		roulettestop = nil
@@ -1848,7 +1850,7 @@ local function xItem_BasicItemHandler(p, cmd)
 			end
 		end
 	elseif (not item) and (not dat.xItem_lastItem) and attackJustDown and xItemLib.toggles.debugItem and cv.bXRig.value then
-		kartstuff[k_itemroulette] = TICRATE*3
+		kartstuff[k_itemroulette] = xItemLib.cvars.iRouletteTime.value
 	end
 	
 	if attackDown and (dat.xItem_roulette > 0 or p.kartstuff[k_respawn] ~= 0) then
@@ -2178,16 +2180,18 @@ local function xItem_DrawItem(v, p, c, i, blink, disableBox, rouletteshift)
 	local itemy = fy * FRACUNIT
 	if rouletteAnim then
 		local yShift = (FRACUNIT * rouletteshift) + (FixedDiv(p.xItemData.xItem_roulette, rouletteAnim) % FRACUNIT)
-		local alpha = (abs(yShift) * 10)/FRACUNIT
-		if alpha >= 10 then return end
-
+		local hudtrans = libfn.getCVar("translucenthud")
+		local alpha = (abs(yShift) * 10)
+		alpha = FixedMul(alpha, FixedDiv(hudtrans * FRACUNIT, 10 * FRACUNIT))/FRACUNIT
+		
 		if splitscreen < 2 then 
 			itemy = $ + 32*yShift
 		else 
 			itemy = $ + 16*yShift
 		end
-		local hudtrans = libfn.getCVar("translucenthud")
-		alpha = min(max(0, alpha), hudtrans)
+
+		alpha = min(max(0, alpha+(10-hudtrans)), 10)
+		if alpha >= 10 then return end
 		itTflags = alpha<<V_ALPHASHIFT
 	end
 
@@ -2780,17 +2784,31 @@ if not xItemLib then
 		possiblevalue = CV_Unsigned
 	})
 
+	xItemLib.cvars.bEnableMashing = CV_RegisterVar({ -- allow mashing
+		name = "xitemmashing",
+		defaultvalue = "Yes",
+		flags = CV_NETVAR,
+		possiblevalue = CV_YesNo
+	})
+
+	xItemLib.cvars.iRouletteTime = CV_RegisterVar({ -- custom roulette time
+		name = "xitemroulettetime",
+		defaultvalue = "105",
+		flags = CV_NETVAR,
+		possiblevalue = CV_Natural
+	})
+
 	xItemLib.cvars.iCustomDistVar = CV_RegisterVar({ -- custom dist var
 		name = "xitemdistvar",
 		defaultvalue = "896",
 		flags = CV_NETVAR,
-		possiblevalue = CV_Unsigned
+		possiblevalue = CV_Natural
 	})
 
 	xItemLib.cvars.iRouletteAnimSpeed = CV_RegisterVar({ -- roulette animation speed
 		name = "xitemrouletteanimspeed",
 		defaultvalue = "5",
-		possiblevalue = CV_Unsigned
+		possiblevalue = CV_Natural
 	})
 
 	local function spbOdds(newodds, pos, mashed, rush, p, secondist, pingame, pexiting)
@@ -3068,17 +3086,31 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	end
 
 	if (xItemLib.gLibVersion < 121) then
+		xItemLib.cvars.bEnableMashing = CV_RegisterVar({ -- allow mashing
+			name = "xitemmashing",
+			defaultvalue = "Yes",
+			flags = CV_NETVAR,
+			possiblevalue = CV_YesNo
+		})
+
+		xItemLib.cvars.iRouletteTime = CV_RegisterVar({ -- custom roulette time
+			name = "xitemroulettetime",
+			defaultvalue = "105",
+			flags = CV_NETVAR,
+			possiblevalue = CV_Natural
+		})
+
 		xItemLib.cvars.iCustomDistVar = CV_RegisterVar({ -- custom dist var
 			name = "xitemdistvar",
 			defaultvalue = "896",
 			flags = CV_NETVAR,
-			possiblevalue = CV_Unsigned
+			possiblevalue = CV_Natural
 		})
 
 		xItemLib.cvars.iRouletteAnimSpeed = CV_RegisterVar({ -- roulette animation speed
 			name = "xitemrouletteanimspeed",
 			defaultvalue = "5",
-			possiblevalue = CV_Unsigned
+			possiblevalue = CV_Natural
 		})
 	end
 
