@@ -1496,7 +1496,7 @@ local function xItem_ItemRoulette(p, cmd)
 		fillLocalAvailableItems(p, useodds, 0, spbrush)
 	end
 	
-	if (p and p.mo and p.mo.health and not (p.spectator or p.exiting)) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and xItemLib.toggles.debugItem and xItemLib.cvars.bXRig.value then
+	if libfn.canUseItem(p, true, true) and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & XBT_ATTACKDISABLED)) and xItemLib.toggles.debugItem and xItemLib.cvars.bXRig.value then
 		kartstuff[k_itemroulette] = roulettetime
 		dat.xItem_roulette = roulettetime
 	end
@@ -1709,7 +1709,7 @@ end
 local function canUseItem(p, strict, nohyudoro)
 	if not p then return false end
 	if strict then
-		if p.kartstuff[k_growshrinktimer] > 0 or p.kartstuff[k_rocketsneakertimer]
+		if p.kartstuff[k_growshrinktimer] > 0 or p.kartstuff[k_rocketsneakertimer] > 0
 			or p.kartstuff[k_eggmanexplode] > 0 or p.kartstuff[k_itemheld] then return false end
 	end
 	if nohyudoro then
@@ -1858,7 +1858,7 @@ local function xItem_BasicItemHandler(p, cmd)
 				error(err, 2)
 			end
 		end
-	elseif (not item) and (not dat.xItem_lastItem) and attackJustDown and xItemLib.toggles.debugItem and cv.bXRig.value then
+	elseif (not dat.xItem_lastItem) and libfunc.canUseItem(p, true, true) and attackJustDown and xItemLib.toggles.debugItem and cv.bXRig.value then
 		kartstuff[k_itemroulette] = xItemLib.cvars.iRouletteTime.value
 	end
 	
