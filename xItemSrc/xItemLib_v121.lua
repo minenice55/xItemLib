@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 0
+local currRevVer = 1
 
 --saturn featureset
 local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
@@ -3110,17 +3110,17 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	end
 
 	if (xItemLib.gLibVersion < 121) then
-		xItemLib.XBT_ATTACKDISABLED = 1<<10, -- attack disabled by cooldown flag
+		xItemLib.XBT_ATTACKDISABLED = 1<<10 -- attack disabled by cooldown flag
 
 		--item flags
-		xItemLib.XIF_POWERITEM = 1, --is power item (affects final odds)
-		xItemLib.XIF_COOLDOWNONSTART = 2, --can't be obtained on start cooldown
-		xItemLib.XIF_UNIQUE = 4, --only one can exist in anyone's slot
-		xItemLib.XIF_LOCKONUSE = 8, --locks the item slot when the item is used, slot must be unlocked manually by setting player.xItemData.xItem_itemSlotLocked to false
-		xItemLib.XIF_COOLDOWNINDIRECT = 16, --checks if indirectitemcooldown is 0
-		xItemLib.XIF_COLPATCH2PLAYER = 32, --map hud patch colour to player prefcolor
-		xItemLib.XIF_ICONFORAMT = 64, --item icon and dropped item frame changes depending on the item amount (animation frames become amount frames)
-		xItemLib.XIF_SMUGGLECHECK = 128, --item contributes to the smuggle detection
+		xItemLib.XIF_POWERITEM = 1 --is power item (affects final odds)
+		xItemLib.XIF_COOLDOWNONSTART = 2 --can't be obtained on start cooldown
+		xItemLib.XIF_UNIQUE = 4 --only one can exist in anyone's slot
+		xItemLib.XIF_LOCKONUSE = 8 --locks the item slot when the item is used, slot must be unlocked manually by setting player.xItemData.xItem_itemSlotLocked to false
+		xItemLib.XIF_COOLDOWNINDIRECT = 16 --checks if indirectitemcooldown is 0
+		xItemLib.XIF_COLPATCH2PLAYER = 32 --map hud patch colour to player prefcolor
+		xItemLib.XIF_ICONFORAMT = 64 --item icon and dropped item frame changes depending on the item amount (animation frames become amount frames)
+		xItemLib.XIF_SMUGGLECHECK = 128 --item contributes to the smuggle detection
 		xItemLib.XIF_NOTNEAREND = 256 --item should not appear at the end of a race
 
 		xItemLib.cvars.bEnableMashing = CV_RegisterVar({ -- allow mashing
