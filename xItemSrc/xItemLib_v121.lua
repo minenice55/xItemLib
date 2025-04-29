@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 1
+local currRevVer = 2
 
 --saturn featureset
 local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
@@ -507,6 +507,36 @@ local function resetOddsForItem(item, p, battle)
 			dat.xItem_battleOdds[i] = xItemLib.xItemData[i].defaultBattleOdds
 		else
 			dat.xItem_raceOdds[i] = xItemLib.xItemData[i].defaultRaceOdds
+		end
+	end
+end
+
+local function setGlobalOddsForItem(item, raceOdds, battleOdds, keepDefault)
+	if raceOdds then
+		if not xItemLib.xItem_raceOdds then
+			xItemLib.xItem_raceOdds = {}
+		end
+		xItemLib.xItemOddsRace[item] = raceOdds
+		
+		if not keepDefault then
+			if not xItemLib.xItemData then
+				xItemLib.xItemData = {}
+			end
+			xItemLib.xItemData[item].defaultRaceOdds = raceOdds
+		end
+	end
+
+	if battleOdds then
+		if not xItemLib.xItemOddsBattle then
+			xItemLib.xItemOddsBattle = {}
+		end
+		xItemLib.xItemOddsBattle[item] = battleOdds
+
+		if not keepDefault then
+			if not xItemLib.xItemData then
+				xItemLib.xItemData = {}
+			end
+			xItemLib.xItemData[item].defaultBattleOdds = battleOdds
 		end
 	end
 end
@@ -2676,6 +2706,7 @@ if not xItemLib then
 	xItemLib.func.countItems = getLoadedItemAmount
 	xItemLib.func.addItem = addXItem
 	xItemLib.func.resetItemOdds = resetOddsForItem
+	xItemLib.func.setGlobalOddsForItem = setGlobalOddsForItem
 	xItemLib.func.setPlayerOddsForItem = setPlayerOddsForItem
 	xItemLib.func.getPlayerScaling = playerScaling
 	xItemLib.func.getStartCountdown = checkStartCooldown
@@ -2987,6 +3018,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	xItemLib.func.countItems = getLoadedItemAmount
 	xItemLib.func.addItem = addXItem
 	xItemLib.func.resetItemOdds = resetOddsForItem
+	xItemLib.func.setGlobalOddsForItem = setGlobalOddsForItem
 	xItemLib.func.setPlayerOddsForItem = setPlayerOddsForItem
 	xItemLib.func.getPlayerScaling = playerScaling
 	xItemLib.func.getStartCountdown = checkStartCooldown
