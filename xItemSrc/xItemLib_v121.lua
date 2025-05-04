@@ -1533,6 +1533,9 @@ local function xItem_ItemRoulette(p, cmd)
 	if (xItemLib.cvars.bEnableMashing.value and ((cmd.buttons & BT_ATTACK) or (cmd.buttons & xItemLib.XBT_ATTACKDISABLED)) and not (kartstuff[k_eggmanheld] or kartstuff[k_itemheld]) and dat.xItem_roulette >= roulettestop and not modeattacking) then
 		-- Mashing reduces your chances for the good items
 		mashed = FixedDiv(dat.xItem_roulette*FRACUNIT, (roulettetime+roulettestop)*FRACUNIT) - FRACUNIT
+		if xItemLib.cvars.bEnableMashing.value == 2 then
+			mashed = abs(mashed)
+		end
 	elseif (not(dat.xItem_roulette >= roulettetime)) then
 		i = nil
 		pingame = nil
@@ -2843,7 +2846,7 @@ if not xItemLib then
 		name = "xitemmashing",
 		defaultvalue = "Yes",
 		flags = CV_NETVAR,
-		possiblevalue = CV_YesNo
+		possiblevalue = {No = 0, Yes = 1, Off = 0, On = 1, False = 0, True = 1, Fixed = 2}
 	})
 
 	xItemLib.cvars.iRouletteTime = CV_RegisterVar({ -- custom roulette time
@@ -3159,7 +3162,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 			name = "xitemmashing",
 			defaultvalue = "Yes",
 			flags = CV_NETVAR,
-			possiblevalue = CV_YesNo
+			possiblevalue = {No = 0, Yes = 1, Off = 0, On = 1, False = 0, True = 1, Fixed = 2}
 		})
 
 		xItemLib.cvars.iRouletteTime = CV_RegisterVar({ -- custom roulette time
