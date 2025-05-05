@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 2
+local currRevVer = 3
 
 --saturn featureset
 local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
@@ -1257,6 +1257,7 @@ local function calculatePlayerDistance(p, pingame)
 		if (p.mo and p.mo.valid) then
 			local playerList = {}
 			for q in players.iterate do
+				if q.spectator then continue end
 				if not (q.mo and q.mo.valid) then continue end
 				playerList[q.kartstuff[k_position]] = q
 			end
@@ -1264,8 +1265,10 @@ local function calculatePlayerDistance(p, pingame)
 			while toposition > 0 do
 				local from = playerList[toposition + 1].mo
 				local to = nil
-				while not to and toposition > 0 do -- Ensures that if somehow the list has any gaps we skip over them, and prevent infinite looping
-					to = playerList[toposition].mo
+				while (not to) and toposition > 0 do -- Ensures that if somehow the list has any gaps we skip over them, and prevent infinite looping
+					if playerList[toposition] and playerList[toposition].mo then
+						to = playerList[toposition].mo
+					end
 					toposition = $-1
 				end
 				if to and from then -- if somehow 1st isn't in the list, to would end up nil, so we need to catch that
@@ -1446,11 +1449,14 @@ local function xItem_ItemRoulette(p, cmd)
 		kartstuff[k_roulettetype] = 0
 		libfn.resetItemOdds(0, p)
 	end
+
 	--stripped during roulette clears our fake one
 	if dat.xItem_roulette and kartstuff[k_itemroulette] == 0 then
 		dat.xItem_roulette = 0
 		kartstuff[k_roulettetype] = 0
+		return
 	end
+
 	if kartstuff[k_itemroulette] and dat.xItem_roulette == 0 then
 		dat.xItem_roulette = kartstuff[k_itemroulette]
 		kartstuff[k_itemroulette] = 4
