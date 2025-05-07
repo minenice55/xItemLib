@@ -888,7 +888,7 @@ local function playerArrowThinker(mobj)
 			local idat = xItemLib.func.getItemDataById(kartstuff[k_itemtype])
 			if idat == nil then
 				-- fallback
-				idat = xItemLib.func.getItemDataById(0)
+				idat = xItemLib.func.getItemDataById(1)
 			end
             local numberdisplaymin = 2
 			if idat.flags and (idat.flags & XIF_ICONFORAMT) then
