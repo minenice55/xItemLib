@@ -1266,7 +1266,7 @@ local function calculatePlayerDistance(p, pingame)
 				local from = playerList[toposition + 1].mo
 				local to = nil
 				while to == nil and toposition > 0 do -- Ensures that if somehow the list has any gaps we skip over them, and prevent infinite looping
-					if playerList[toposition] and playerList[toposition].mo then
+					if playerList[toposition] and playerList[toposition].mo and (not playerList[toposition].spectator) then
 						to = playerList[toposition].mo
 					end
 					toposition = $-1
