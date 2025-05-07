@@ -3110,7 +3110,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		})
 	end
 	
-	if (xItemLib.gLibVersion < 112 and (xItemLib.gLibVersion == 112 and xItemLib.gRevVersion < 3)) then -- todo: update to 113
+	if (xItemLib.gLibVersion < 112 or (xItemLib.gLibVersion == 112 and xItemLib.gRevVersion < 3)) then -- todo: update to 113
 		-- Ashnal: Couple new cvars
 		-- This is a non-netvar that allows you to view the distribution debugger within replays, without allowing it in netgames that the replays come from
 		xItemLib.cvars.bItemDebugDistribReplayOnly = CV_RegisterVar({ --distribution debugger
