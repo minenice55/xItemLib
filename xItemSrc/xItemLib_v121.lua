@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 4
+local currRevVer = 5
 
 --saturn featureset
 local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
@@ -886,6 +886,10 @@ local function playerArrowThinker(mobj)
 
         if not (mobj.flags2 & MF2_DONTDRAW) then
 			local idat = xItemLib.func.getItemDataById(kartstuff[k_itemtype])
+			if idat == nil then
+				-- fallback
+				idat = xItemLib.func.getItemDataById(0)
+			end
             local numberdisplaymin = 2
 			if idat.flags and (idat.flags & XIF_ICONFORAMT) then
 				numberdisplaymin = idat.droppedstate.tics + 1
