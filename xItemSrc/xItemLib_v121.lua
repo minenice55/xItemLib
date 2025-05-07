@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 3
+local currRevVer = 4
 
 --saturn featureset
 local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
@@ -1265,7 +1265,7 @@ local function calculatePlayerDistance(p, pingame)
 			while toposition > 0 do
 				local from = playerList[toposition + 1].mo
 				local to = nil
-				while (not to) and toposition > 0 do -- Ensures that if somehow the list has any gaps we skip over them, and prevent infinite looping
+				while to == nil and toposition > 0 do -- Ensures that if somehow the list has any gaps we skip over them, and prevent infinite looping
 					if playerList[toposition] and playerList[toposition].mo then
 						to = playerList[toposition].mo
 					end
@@ -3024,6 +3024,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	print("\3\135xItemLib\n\128by \130minenice\128")
 	print("Updating to library version \130"..currLibVer.." (revision "..currRevVer..")")
 	xItemLib.func = {}
+
 	xItemLib.func.countItems = getLoadedItemAmount
 	xItemLib.func.addItem = addXItem
 	xItemLib.func.resetItemOdds = resetOddsForItem
@@ -3045,40 +3046,44 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 	xItemLib.func.attackHandler = xItem_BasicItemHandler
 	xItemLib.func.hudFindFlags = xItem_FindHudFlags
 	xItemLib.func.hudDrawItemBox = xItem_DrawItemBox
+	xItemLib.func.xItem_DrawTimerBar = xItem_DrawTimerBar
 	xItemLib.func.hudDrawItem = xItem_DrawItem
 	xItemLib.func.hudDrawEgg = xItem_drawEggTimer
 	xItemLib.func.hudDrawSad = xItem_drawSad
+	xItemLib.func.hudDrawItemCooldown = xItem_DrawItemMinecraftCooldown
+	xItemLib.func.hudDrawItemCooldownBox = xItem_DrawCooldownItemBox
+	xItemLib.func.hudDrawRoulette = xItem_DrawRoulette
 	xItemLib.func.hudMain = xItem_hudMain
 	xItemLib.func.playerThinker = playerThinkFrame
 	xItemLib.func.hudFindRouletteItems = findAvailableRoulettePatches
 	xItemLib.func.findItemByNamespace = findItemByNamespace
 	xItemLib.func.findItemByFriendlyName = findItemByFriendlyName
-	xItemLib.func.canUseItem = canUseItem
-	xItemLib.func.floatingXItemThinker = floatingXItemThinker
-	xItemLib.func.floatingXItemSpecial = floatingXItemSpecial
-	xItemLib.func.playerArrowThinker = playerArrowThinker
-	xItemLib.func.vanillaArrowThinker = vanillaArrowThinker
-	xItemLib.func.addXItemMod = addXItemMod
-	xItemLib.func.setXItemModData = setXItemModData
-	xItemLib.func.getXItemModData = getXItemModData
-	xItemLib.func.getXItemModValue = getXItemModValue
 	xItemLib.func.getCVar = getCVar
 	xItemLib.func.findItemDistributions = findItemDistributions
 	xItemLib.func.xItem_drawDistributions = xItem_drawDistributions
 	xItemLib.func.xItem_handleDistributionDebugger = xItem_handleDistributionDebugger
 	xItemLib.func.xItem_setPlayerItemCooldown = setPlayerItemCooldown
-	xItemLib.func.hudDrawItemCooldown = xItem_DrawItemMinecraftCooldown
-	xItemLib.func.hudDrawItemCooldownBox = xItem_DrawCooldownItemBox
-	xItemLib.func.hudDrawRoulette = xItem_DrawRoulette
 	xItemLib.func.playerCmdHook = playerCmdHook
 	xItemLib.func.playerSpawn = playerSpawn
 	xItemLib.func.mapChange = mapChange
-	xItemLib.func.xItem_DrawTimerBar = xItem_DrawTimerBar
-
-	xItemLib.func.findItemIdFromCvArgument = findItemIdFromCvArgument
+	--here you go yoshimo lmao
+	xItemLib.func.canUseItem = canUseItem
+	--a
+	xItemLib.func.floatingXItemThinker = floatingXItemThinker
+	xItemLib.func.floatingXItemSpecial = floatingXItemSpecial
+	xItemLib.func.playerArrowThinker = playerArrowThinker
+	xItemLib.func.vanillaArrowThinker = vanillaArrowThinker
+	--crossmod support
+	xItemLib.func.addXItemMod = addXItemMod
+	xItemLib.func.setXItemModData = setXItemModData
+	xItemLib.func.getXItemModData = getXItemModData
+	xItemLib.func.getXItemModValue = getXItemModValue
+	--OOP stuff
 	xItemLib.func.getItemDataById = getItemDataById
 	xItemLib.func.getItemDataByName = getItemDataByName
-
+	
+	--console commands
+	xItemLib.func.findItemIdFromCvArgument = findItemIdFromCvArgument
 	xItemLib.func.setDebugItem = setDebugItem
 	xItemLib.func.toggleItem = toggleItem
 	xItemLib.func.listItem = listItem
@@ -3105,7 +3110,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		})
 	end
 	
-	if (xItemLib.gLibVersion < 112 and xItemLib.gRevVersion < 3) then -- todo: update to 113
+	if (xItemLib.gLibVersion < 112 and (xItemLib.gLibVersion == 112 and xItemLib.gRevVersion < 3)) then -- todo: update to 113
 		-- Ashnal: Couple new cvars
 		-- This is a non-netvar that allows you to view the distribution debugger within replays, without allowing it in netgames that the replays come from
 		xItemLib.cvars.bItemDebugDistribReplayOnly = CV_RegisterVar({ --distribution debugger
@@ -3132,7 +3137,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		rawset(_G, "K_GetItemPatch", K_GetItemPatch)
 	end
 
-	if (xItemLib.gLibVersion < 112 or xItemLib.gLibVersion == 112 and xItemLib.gRevVersion < 4) then
+	if (xItemLib.gLibVersion < 112 or (xItemLib.gLibVersion == 112 and xItemLib.gRevVersion < 4)) then
 		xItemLib.cvars.bSmugglerBonus = CV_RegisterVar({ -- smuggler bonus
 			name = "xitemsmugglerbonus",
 			defaultvalue = "No",
@@ -3141,7 +3146,7 @@ if xItemLib.gLibVersion < currLibVer or (xItemLib.gLibVersion == currLibVer and 
 		})
 	end
 
-	if (xItemLib.gLibVersion < 120 or xItemLib.gLibVersion == 120 and xItemLib.gRevVersion < 1) then
+	if (xItemLib.gLibVersion < 120 or (xItemLib.gLibVersion == 120 and xItemLib.gRevVersion < 1)) then
 		xItemLib.cvars.fSmugglerBonusModifier = CV_RegisterVar({ -- smuggler bonus modifier
 			name = "xitemsmugglerbonusmodifier",
 			defaultvalue = "1.2",
