@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 5
+local currRevVer = 6
 
 --saturn featureset
 local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
@@ -2955,13 +2955,14 @@ if not xItemLib then
 		xItemLib.func.hudMain(v, p, c)
 	end, "game")
 	
-	addHook("ThinkFrame", do
-		for i = 0, #players-1 do
-			if players[i] then
-				xItemLib.func.playerThinker(players[i])
-			end
-		end
-	end)
+	-- addHook("ThinkFrame", do
+	-- 	for i = 0, #players-1 do
+	-- 		if players[i] then
+	-- 			xItemLib.func.playerThinker(players[i])
+	-- 		end
+	-- 	end
+	-- end)
+	addHook("PlayerThink", function(p) xItemLib.func.playerThinker(p) end)
 
 	addHook("PlayerCmd", function(p, cmd) xItemLib.func.playerCmdHook(p, cmd) end)
 
