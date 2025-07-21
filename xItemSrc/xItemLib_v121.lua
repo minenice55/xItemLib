@@ -9,7 +9,7 @@
 --current library version (release, major, minor)
 local currLibVer = 121
 --current library revision (internal testing use)
-local currRevVer = 7
+local currRevVer = 8
 
 --saturn featureset
 local def_saturn = string.find(VERSIONSTRING, "Saturn") == 1
@@ -2160,7 +2160,7 @@ local function xItem_DrawRoulette(v, p, c)
 		local animLength = 3
 		local icon = 1
 
-		avcount = table.getn(av)
+		local avcount = table.getn(av)
 		if avcount < 0 then return end
 
 		libfn.hudDrawItemBox(v, p, c)
